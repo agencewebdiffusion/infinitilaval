@@ -13,6 +13,7 @@
   <script src="js/mediaelement/mediaelement-and-player.js"></script>
   <link rel="stylesheet" href="js/mediaelement/mediaelementplayer.css" />
   <link rel="stylesheet" href="theme.css" />
+  <link href="http://maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css" rel="stylesheet">
 </head>
 <body>
 
@@ -20,29 +21,27 @@
   <div id="logo">
     <a href="http://vimonttoyotalaval.com">Retour à Vimont Toyota Laval</a>
   </div>
-  <div id="sections">
-    <script type="text/template" id="view-sections">
-      <a class="section"><%= section %></a>
-    </script>
-  </div>
 </div>
 
-<div id="main-view">
-  <div id="controls">
-    <a id="controls-back">précédent</a>
-    <a id="controls-next">suivant</a>
-    <div id="timeline">
-      <div id="timeline-buffer"></div>
-      <div id="timeline-duration"></div>
-      <div id="timeline-title"></div>
+<div id="main-view" class="app-container">
+  <div id="controls-wrapper" class="app-container column">
+    <div id="screen" class="app-modal">
+      <div id="video-wrapper"></div>
+      <div id="timeline">
+        <div id="timeline-buffer"></div>
+        <div id="timeline-duration"></div>
+        <div id="timeline-title"></div>
+      </div>
     </div>
   </div>
 
-  <div id="screen">
+  <div id="controls">
+    <a id="controls-back"><i class="fa fa-chevron-left"></i></a>
+    <a id="controls-next"><i class="fa fa-chevron-right"></i></a>
   </div>
 
   <script type="text/template" id="view-video">
-  <video id="media-element" poster="<%= poster %>" controls>
+  <video id="media-element" poster="<%= poster %>" controls style="height: 100%; width: 100%">
     <% _.each(sources, function (source, type) { %>
       <source type="<%= type %>" src="<%= source %>"/>
     <% }); %>
@@ -51,9 +50,20 @@
 
 </div>
 
-<div id="sidebar">
+<div class="fullscreen-placeholder"></div>
+
+<div id="list-view" class="column">
+  <div id="sections">
+    <script type="text/template" id="view-sections">
+      <a class="section"><%= section %></a>
+    </script>
+  </div>
   <ul id="playlist">
   </ul>
+</div>
+
+<div id="campaign-view">
+
   <a id="advanced-playlist">...</a>
 </div>
 
@@ -124,7 +134,7 @@ var Playlist = Backbone.Collection.extend({
 
 // Contains the video player
 var VideoView = Backbone.View.extend({
-  el: $("#screen"),
+  el: $("#video-wrapper"),
   template: _.template($("#view-video").html()),
   events: {
   },
