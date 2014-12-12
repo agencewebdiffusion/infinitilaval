@@ -39,6 +39,9 @@ a:link, a:hover, a:active, a:visited {
   max-width: 80%;
   margin: auto;
 }
+@media screen and (min-width: 1200px) {
+  .column { max-width: 1000px; }
+}
 
 .app-container {
   overflow: auto;
@@ -139,20 +142,9 @@ a:link, a:hover, a:active, a:visited {
 #header a {
   padding: 0 15px;
 }
-#sections {
-  margin-right: 10px;
-}
-#sections a {
-  padding: 2px 15px;
-  margin: 0 0 0 5px;
-  border: 1px solid gray;
-  cursor: pointer;
-}
 #logo {
   float: left;
 }
-#sections {float: right;}
-
 #main-view {
 }
 
@@ -175,7 +167,7 @@ a:link, a:hover, a:active, a:visited {
   right: 0;
   height: 0;
   padding-top: 56.25%;
-  padding-bottom: 2em;
+  padding-bottom: 1.5em;
   max-height: 80%;
   margin: auto;
 }
@@ -185,13 +177,6 @@ a:link, a:hover, a:active, a:visited {
   display: block;
   position: absolute;
   top:0;
-}
-.playlist-view {
-  display: block;
-}
-
-#list-view {
-  background: white;
 }
 #controls {
   position: absolute;
@@ -218,9 +203,9 @@ a:link, a:hover, a:active, a:visited {
   width: 100%;
   text-align: center;
   position: absolute;
-  bottom: 0;
   background: black;
   padding: .5em 0;
+  font-size: .5em;
 }
 #timeline-duration {
   position: absolute;
@@ -232,6 +217,71 @@ a:link, a:hover, a:active, a:visited {
   z-index: -1;
   display: none;
 }
+.playlist-view {
+  display: block;
+  position: relative;
+  margin-bottom: 4%;
+}
+
+.playlist-view:hover {
+  cursor: default;
+}
+
+.playlist-view:hover .playlist-capsule-wrapper {
+  background: transparent;
+}
+
+.playlist-capsule-wrapper {
+  position: absolute;
+  top:0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  text-align: center;
+  color: white;
+  text-shadow: 0px 1px 5px black;
+  background: rgba(0,0,0,.5);
+
+}
+
+.out-of-playlist .playlist-capsule-wrapper {
+  background: rgba(125,125,125,.75);
+}
+
+.playlist-capsule-title {
+  display: inline-block;
+  vertical-align: middle;
+  max-width: 95%;
+}
+
+.playlist-capsule-wrapper:after {
+  content: "";
+  display: inline-block;
+  vertical-align: middle;
+  height: 100%;
+}
+
+#list-view {
+  background: white;
+}
+#toggles {
+  clear: both;
+  text-align: center;
+}
+
+#sections {
+  display: inline;
+}
+
+#toggles a{
+  display: inline-block;
+  border-radius: .35em;
+  background: silver;
+  color: white;
+  padding: .5em;
+  font-size: .75em;
+}
+
 /*
 @media screen and (orientation: portrait) {
   #header {
