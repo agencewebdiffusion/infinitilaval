@@ -17,14 +17,22 @@
 </head>
 <body>
 
-<div id="header">
-  <div id="logo">
-    <a href="http://vimonttoyotalaval.com">Retour à Vimont Toyota Laval</a>
+<div id="menu-icons">
+  <div id="close">
+    <i class="fa fa-close"></i>
+  </div>
+
+  <div id="list-shortcut">
+    <a href="#scroll-view"><i class="fa fa-list"></i></a>
   </div>
 </div>
 
 <div class="fullscreen-placeholder"></div>
 <div id="main-view" class="app-container">
+  <div id="controls">
+    <a id="controls-back"><i class="fa fa-chevron-left"></i></a>
+    <a id="controls-next"><i class="fa fa-chevron-right"></i></a>
+  </div>
   <div id="controls-wrapper" class="app-container column">
     <div id="screen" class="app-modal">
       <div id="video-wrapper"></div>
@@ -35,12 +43,6 @@
       </div>
     </div>
   </div>
-
-  <div id="controls">
-    <a id="controls-back"><i class="fa fa-chevron-left"></i></a>
-    <a id="controls-next"><i class="fa fa-chevron-right"></i></a>
-  </div>
-
   <script type="text/template" id="view-video">
   <video id="media-element" poster="<%= poster %>" controls style="height: 100%; width: 100%">
     <% _.each(sources, function (source, type) { %>
@@ -51,9 +53,9 @@
 
 </div>
 
-<div id="scroll-view">
-  <div id="list-view" class="column">
-    <ul id="playlist" class="grid-container">
+<div id="scroll-view" class="">
+  <div id="list-view" class="">
+    <ul id="playlist" class="">
     </ul>
     <div id="toggles">
       <div id="sections">
