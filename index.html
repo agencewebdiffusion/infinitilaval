@@ -147,7 +147,6 @@ var VideoView = Backbone.View.extend({
   },
   initialize: function() {
     this.render();
-    this.on("vimont:canplay", this.videoCanPlay);
   },
   render: function () {
     var self = this;
@@ -186,13 +185,52 @@ var VideoView = Backbone.View.extend({
   },
   togglePlay: function () {
     this.player.play();
-  },
-  videoCanPlay: function (event) {
   }
 });
 
-// Contains the playlist of available capsules
-var PlaylistView = Backbone.View.extend({
+/**
+ * Builds a list of cards that can be toggled on or off to indicate if they
+ * should be in the playlist
+ */
+var PlaylistBuilderView = Backbone.View.extend({
+
+});
+
+/**
+ * A card in a playlist builder view
+ */
+var PlaylistBuilderItemView = Backbone.View.extend({
+  tagName: "li",
+  className: "playlist-view grid-item",
+  template: _.template($("#view-playlist").html()),
+  events: {
+    "click" : "toggleInPlaylist"
+  },
+  render: function () {
+    this.$el.html(this.template(this.model.toJSON()));
+    return this;
+  },
+  initialize : function () {
+    // Listen to the model to pick up changes in playlist state
+    this.listenTo(this.model, "change:inPlaylist", function () {
+      if(!this.model.get('inPlaylist')) {
+        this.$el.addClass("out-of-playlist");
+      } else {
+        this.$el.removeClass("out-of-playlist");
+      }
+    });
+  },
+  // Add or remove the model from the playlist
+  toggleInPlaylist : function (event) {
+    event.stopImmediatePropagation();
+    this.model.toggleInPlaylist();
+  }
+});
+
+/**
+ * A playlist card to skip to a specific video
+ */
+var PlaylistItemView = Backbone.View.extend({
   tagName: "li",
   className: "playlist-view grid-item",
   template: _.template($("#view-playlist").html()),
@@ -204,32 +242,26 @@ var PlaylistView = Backbone.View.extend({
     this.$el.html(this.template(this.model.toJSON()));
     return this;
   },
-
-  initialize : function () {
-    // Listen to the model to pick up changes in playlist state
-    this.listenTo(this.model, "change:inPlaylist", function () {
-      if(!this.model.get('inPlaylist')) {
-        this.$el.addClass("out-of-playlist");
-      } else {
-        this.$el.removeClass("out-of-playlist");
-      }
-      this.render();
-    });
-  },
   loadCapsule : function (event) {
-    if($(event.target).parents(".advanced").length) {
-      // In advanced mode, clicking the playlist item should toggle it
-      this.toggleInPlaylist(event);
-    } else {
-      // Send a message to the AppView to play this capsule
-      this.trigger('vimont:play', this);
-    }
-  },
-  // Add or remove the model from the playlist
-  toggleInPlaylist : function (event) {
-    event.stopImmediatePropagation();
-    this.model.toggleInPlaylist();
-    this.trigger('vimont:changePlayqueue', this);
+    // Send a message to the AppView to play this capsule
+    // Change me to a collection event, player should listen to the collection
+    this.trigger('vimont:play', this);
+  }
+});
+
+var PlayerView = Backbone.View.extend({
+  el: $("player-view"),
+  events: {
+    "click #controls-play" : "togglePlay",
+    "click #controls-next" : "nextCapsule",
+    "click #controls-back" : "previousCapsule"
+  }
+});
+
+var PlaylistView = Backbone.View.extend({
+  events: {
+    "click .section" : "toggleSection",
+    "click #advanced-playlist" : "advancedPlaylist"
   }
 });
 
@@ -237,11 +269,6 @@ var PlaylistView = Backbone.View.extend({
 var AppView = Backbone.View.extend({
   el: $("body"),
   events : {
-    "click .section" : "toggleSection",
-    "click #controls-play" : "togglePlay",
-    "click #controls-next" : "nextCapsule",
-    "click #controls-back" : "previousCapsule",
-    "click #advanced-playlist" : "advancedPlaylist"
   },
   initialize : function () {
     this.fillPlaylist();
@@ -265,9 +292,10 @@ var AppView = Backbone.View.extend({
     });
   },
   addPlaylistItem : function (capsule) {
-    var view = new PlaylistView({model: capsule});
+    var view = new PlaylistItemView({model: capsule});
     this.listenTo(view, "vimont:play", this.loadCapsule);
-    this.listenTo(view, "vimont:changePlayqueue", this.navigateQueue);
+    //change to listen to collection attribute
+    //this.listenTo(view, "vimont:changePlayqueue", this.navigateQueue);
     this.$("#playlist").append(view.render().el);
   },
   navigateQueue: function () {
