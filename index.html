@@ -55,8 +55,8 @@
 
 <div id="scroll-view" class="">
   <div id="list-view" class="">
-    <ul id="playlist" class="">
-    </ul>
+    <div id="playlist" class="">
+    </div>
     <div id="toggles">
       <div id="sections">
         <script type="text/template" id="view-sections">
@@ -99,12 +99,17 @@ var Capsule = Backbone.Model.extend({
   toggleInPlaylist: function () {
     this.set({inPlaylist: !this.get("inPlaylist")});
     return this.get("inPlaylist");
+  },
+  // Send an event to the collection that this capsule should be played
+  play : function () {
+    this.trigger("play", this);
   }
 });
 
 var Playlist = Backbone.Collection.extend({
   model: Capsule,
   initialize: function () {
+
   },
   selected: function () {
     return this.where({inPlaylist: true});
@@ -208,6 +213,7 @@ var PlayerView = Backbone.View.extend({
     // Listen to the collection for a video player start
     //
     this.openScreen(playlist.selected()[0]);
+    this.listenTo(playlist, "play", this.openScreen);
   },
   openScreen: function (activeModel) {
     // The playqueue returned nothing active
@@ -261,15 +267,6 @@ var PlayerView = Backbone.View.extend({
   }
 });
 
-
-/**
- * Builds a list of cards that can be toggled on or off to indicate if they
- * should be in the playlist
- */
-var PlaylistBuilderView = Backbone.View.extend({
-
-});
-
 /**
  * A card in a playlist builder view
  */
@@ -317,19 +314,86 @@ var PlaylistItemView = Backbone.View.extend({
     return this;
   },
   loadCapsule : function (event) {
-    // Send a message to the AppView to play this capsule
+    // Send a message to the model to play this capsule
     // Change me to a collection event, player should listen to the collection
-    this.trigger('vimont:play', this);
+    this.model.play();
   }
+});
+
+/**
+ * Builds a list of cards that can be toggled on or off to indicate if they
+ * should be in the playlist
+ */
+var PlaylistBuilderView = Backbone.View.extend({
+
 });
 
 /**
  * Builds a list of cards to skip to a specific capsule
  */
 var PlaylistSelectorView = Backbone.View.extend({
+  tagName : "ul",
+  playlistViews : [],
+  initialize : function () {
+    // iterate over the collection and add all active models as subviews
+    this.fillPlaylist();
+    // listen to a change in the collection to rebuild the list
+  },
+  render : function () {
+    var self = this;
+    _.each(this.playlistViews, function (subview) {
+      self.$el.append(subview.render().$el);
+    });
+    return this;
+  },
   fillPlaylist : function () {
-    this.$("#playlist").empty();
-    playlist.each(this.addPlaylistItem, this);
+    _.each(this.playlistViews, function(subview) {
+      subview.remove();
+    });
+    this.playlistViews = [];
+    _(playlist.selected()).each(this.addPlaylistItem, this);
+  },
+  addPlaylistItem : function (capsule) {
+    var view = new PlaylistItemView({model: capsule});
+    this.playlistViews.push(view);
+  }
+});
+
+/**
+ * Displays the playlist and playlist administration area
+ */
+var PlaylistView = Backbone.View.extend({
+  el: $("#playlist"),
+  events: {
+    "click .section" : "toggleSection",
+    "click #advanced-playlist" : "advancedPlaylist"
+  },
+  initialize : function () {
+    // Create a view to list capsules and edit them
+    this.playlistSelectorView = new PlaylistSelectorView({collection: playlist});
+    this.playlistBuilderView = new PlaylistBuilderView({collection: playlist});
+    this.activeView = this.playlistSelectorView;
+    this.render();
+  },
+  render : function () {
+    this.$el.html(this.activeView.render().$el);
+    return this;
+  },
+  remove: function () {
+    this.playlistSelectorView.remove();
+    this.playlistBuilderView.remove();
+    this.stopListening();
+    this.$el.remove();
+    return this;
+  },
+  toggleSection: function (e) {
+    // Update the playlist with right sections
+    playlist.toggleSection(e.target.innerHTML);
+    // Navigate to the section
+    playlistRouter.navigateToSection(e.target.innerHTML);
+  },
+  advancedPlaylist: function (e) {
+    $("#sidebar").toggleClass("advanced");
   },
   fillSections : function () {
     var sectionTemplate = _.template($("#view-sections").html());
@@ -343,57 +407,6 @@ var PlaylistSelectorView = Backbone.View.extend({
         )
       );
     });
-  },
-  addPlaylistItem : function (capsule) {
-    var view = new PlaylistItemView({model: capsule});
-    this.listenTo(view, "vimont:play", this.loadCapsule);
-    //change to listen to collection attribute
-    //this.listenTo(view, "vimont:changePlayqueue", this.navigateQueue);
-    this.$("#playlist").append(view.render().el);
-  },
-  navigateQueue: function () {
-    // If all active capsules have the same section, use that as the url
-    var sections = _(playlist.selected())
-    .chain()
-    .map(function (a) {return a.get('section')})
-    .uniq()
-    .value();
-
-    if (playlist.selected().length == playlist.length) {
-      var destination = "/";
-    } else if ( // All items in a playlist are active
-      sections.length == 1 &&
-        playlist.where({inPlaylist: true, section: sections[0]}).length == playlist.where({section: sections[0]}).length
-      ) {
-      playlistRouter.navigateToSection(sections[0]);
-      return;
-    }
-    else {
-      var destination = _.reduce(playlist.selected(), function (url, obj) {
-        return url + "/" + obj.get('path');
-      }, "");
-    }
-
-    playlistRouter.navigate(destination, {trigger: false, replace: true});
-  }
-});
-
-/**
- * Displays the playlist and playlist administration area
- */
-var PlaylistView = Backbone.View.extend({
-  events: {
-    "click .section" : "toggleSection",
-    "click #advanced-playlist" : "advancedPlaylist"
-  },
-  toggleSection: function (e) {
-    // Update the playlist with right sections
-    playlist.toggleSection(e.target.innerHTML);
-    // Navigate to the section
-    playlistRouter.navigateToSection(e.target.innerHTML);
-  },
-  advancedPlaylist: function (e) {
-    $("#sidebar").toggleClass("advanced");
   }
 });
 
@@ -462,9 +475,33 @@ var PlaylistRouter = Backbone.Router.extend({
         });
       }
     }
-
     // Open the first active capsule
     // appView.openScreen(playlist.selected()[0]);
+  },
+  navigateQueue: function () {
+    // If all active capsules have the same section, use that as the url
+    var sections = _(playlist.selected())
+    .chain()
+    .map(function (a) {return a.get('section')})
+    .uniq()
+    .value();
+
+    if (playlist.selected().length == playlist.length) {
+      var destination = "/";
+    } else if ( // All items in a playlist are active
+      sections.length == 1 &&
+        playlist.where({inPlaylist: true, section: sections[0]}).length == playlist.where({section: sections[0]}).length
+      ) {
+      playlistRouter.navigateToSection(sections[0]);
+      return;
+    }
+    else {
+      var destination = _.reduce(playlist.selected(), function (url, obj) {
+        return url + "/" + obj.get('path');
+      }, "");
+    }
+
+    playlistRouter.navigate(destination, {trigger: false, replace: true});
   }
 });
 
