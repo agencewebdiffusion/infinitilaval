@@ -18,7 +18,7 @@
 <body>
 
 <div id="menu-icons">
-  <div id="close">
+  <div id="close-the-app">
     <i class="fa fa-close"></i>
   </div>
 
@@ -28,7 +28,7 @@
 </div>
 
 <div class="fullscreen-placeholder"></div>
-<div id="main-view" class="app-container">
+<div id="player-view" class="app-container">
   <div id="controls">
     <a id="controls-back"><i class="fa fa-chevron-left"></i></a>
     <a id="controls-next"><i class="fa fa-chevron-right"></i></a>
@@ -175,7 +175,13 @@ var VideoView = Backbone.View.extend({
 
     return this;
   },
-  destroy: function () {
+  remove: function () {
+    this.destroyMEjs();
+    this.$el.empty();
+    this.stopListening();
+    return this;
+  },
+  destroyMEjs: function () {
     if (mejs) {
       var players = _.keys(mejs.players);
       _.each(players, function(player) {
@@ -187,6 +193,74 @@ var VideoView = Backbone.View.extend({
     this.player.play();
   }
 });
+
+/**
+ * Controls the video player
+ */
+var PlayerView = Backbone.View.extend({
+  el: $("#player-view"),
+  events: {
+    "click #controls-play" : "togglePlay",
+    "click #controls-next" : "nextCapsule",
+    "click #controls-back" : "previousCapsule"
+  },
+  initialize: function () {
+    // Listen to the collection for a video player start
+    //
+    this.openScreen(playlist.selected()[0]);
+  },
+  openScreen: function (activeModel) {
+    // The playqueue returned nothing active
+    if (activeModel == null) return;
+    // Clean up lingering mediaelement player
+    if (typeof this.screen !== "undefined") this.screen.remove();
+
+    this.screen = new VideoView({model: activeModel});
+    $("#timeline-title").html(activeModel.get('title'));
+
+    // Should these events route through the model instead of the subview?
+    this.listenTo(this.screen, "vimont:ended", this.endCapsule);
+    this.listenTo(this.screen, "vimont:playing", this.resumed);
+  },
+  togglePlay: function () {
+    if(this.screen.togglePlay()) {
+      $("#controls-play").addClass("paused");
+    } else {
+      $("#controls-play").removeClass("paused");
+    }
+  },
+  endCapsule: function () {
+    this.nextCapsule();
+
+    // Set a timer to start the video
+    var size = 0;
+    clearInterval(this.startDelay);
+    $("#timeline-duration").fadeIn();
+    var self = this;
+    this.startDelay = setInterval(function () {
+      size += 1;
+      $("#timeline-duration").width(size + "%");
+      if(size >= 100) {
+        clearInterval(self.startDelay);
+        self.togglePlay();
+        $("#timeline-duration").fadeOut();
+      }
+    }, 5000 / 100);
+  },
+  resumed: function () {
+    clearInterval(this.startDelay);
+    $("#timeline-duration").fadeOut();
+  },
+  nextCapsule: function () {
+    // Move active screen in collection, or wrap to start
+    this.openScreen(playlist.next(this.screen.model));
+  },
+  previousCapsule: function () {
+    // Move active screen in collection, or wrap to end
+    this.openScreen(playlist.previous(this.screen.model));
+  }
+});
+
 
 /**
  * Builds a list of cards that can be toggled on or off to indicate if they
@@ -249,31 +323,10 @@ var PlaylistItemView = Backbone.View.extend({
   }
 });
 
-var PlayerView = Backbone.View.extend({
-  el: $("player-view"),
-  events: {
-    "click #controls-play" : "togglePlay",
-    "click #controls-next" : "nextCapsule",
-    "click #controls-back" : "previousCapsule"
-  }
-});
-
-var PlaylistView = Backbone.View.extend({
-  events: {
-    "click .section" : "toggleSection",
-    "click #advanced-playlist" : "advancedPlaylist"
-  }
-});
-
-// Builds the global App
-var AppView = Backbone.View.extend({
-  el: $("body"),
-  events : {
-  },
-  initialize : function () {
-    this.fillPlaylist();
-    this.fillSections();
-  },
+/**
+ * Builds a list of cards to skip to a specific capsule
+ */
+var PlaylistSelectorView = Backbone.View.extend({
   fillPlaylist : function () {
     this.$("#playlist").empty();
     playlist.each(this.addPlaylistItem, this);
@@ -322,21 +375,16 @@ var AppView = Backbone.View.extend({
     }
 
     playlistRouter.navigate(destination, {trigger: false, replace: true});
-  },
-  loadCapsule: function (capsule) {
-    this.openScreen(capsule.model);
-  },
-  openScreen: function (activeModel) {
-    // The playqueue returned nothing active
-    if (activeModel == null) return;
-    // Clean up lingering mediaelement player
-    if (typeof this.screen !== "undefined") this.screen.destroy();
+  }
+});
 
-    this.screen = new VideoView({model: activeModel});
-    $("#timeline-title").html(activeModel.get('title'));
-
-    this.listenTo(this.screen, "vimont:ended", this.endCapsule);
-    this.listenTo(this.screen, "vimont:playing", this.resumed);
+/**
+ * Displays the playlist and playlist administration area
+ */
+var PlaylistView = Backbone.View.extend({
+  events: {
+    "click .section" : "toggleSection",
+    "click #advanced-playlist" : "advancedPlaylist"
   },
   toggleSection: function (e) {
     // Update the playlist with right sections
@@ -346,43 +394,39 @@ var AppView = Backbone.View.extend({
   },
   advancedPlaylist: function (e) {
     $("#sidebar").toggleClass("advanced");
-  },
-  togglePlay: function () {
-    if(this.screen.togglePlay()) {
-      $("#controls-play").addClass("paused");
-    } else {
-      $("#controls-play").removeClass("paused");
-    }
-  },
-  endCapsule: function () {
-    this.nextCapsule();
+  }
+});
 
-    // Set a timer to start the video
-    var size = 0;
-    clearInterval(this.startDelay);
-    $("#timeline-duration").fadeIn();
-    var self = this;
-    this.startDelay = setInterval(function () {
-      size += 1;
-      $("#timeline-duration").width(size + "%");
-      if(size >= 100) {
-        clearInterval(self.startDelay);
-        self.togglePlay();
-        $("#timeline-duration").fadeOut();
-      }
-    }, 5000 / 100);
+/**
+ * Builds the global App
+ */
+var AppView = Backbone.View.extend({
+  el: $("body"),
+  events : {
+    "click #close-the-app" : "closeTheApp"
   },
-  resumed: function () {
-    clearInterval(this.startDelay);
-    $("#timeline-duration").fadeOut();
+  initialize : function () {
+    // Create a collection of video capsules
+    // Using global namespace for now, not sure whether this should be a view
+    // object or a specific app object
+    this.playlist = window.playlist;
+    // Create a player interface
+    this.player = new PlayerView({collection: this.playlist});
+    // Create a playlist interface
+    this.playlistView = new PlaylistView({collection: this.playlist});
   },
-  nextCapsule: function () {
-    // Move active screen in collection, or wrap to start
-    this.openScreen(playlist.next(this.screen.model));
+  remove : function () {
+    this.player.remove();
+    this.playlistView.remove();
+
+    this.$el.remove();
+    this.stopListening();
+    return this;
   },
-  previousCapsule: function () {
-    // Move active screen in collection, or wrap to end
-    this.openScreen(playlist.previous(this.screen.model));
+  closeTheApp : function () {
+    // destroy the lightbox and return the user to the page if this is a
+    // lightbox app
+    this.remove();
   }
 });
 
@@ -420,7 +464,7 @@ var PlaylistRouter = Backbone.Router.extend({
     }
 
     // Open the first active capsule
-    appView.openScreen(playlist.selected()[0]);
+    // appView.openScreen(playlist.selected()[0]);
   }
 });
 
