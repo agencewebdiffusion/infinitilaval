@@ -60,7 +60,7 @@
     <div id="toggles">
       <div id="sections">
         <script type="text/template" id="view-sections">
-          <a class="section"><i class="fa fa-bookmark"></i> <%= section %></a>
+          <i class="fa fa-bookmark"></i> <%= section %>
         </script>
       </div>
       <a id="advanced-playlist"><i class="fa fa-list-ol"></i> Créer une liste</a>
@@ -76,7 +76,7 @@
 <script type="text/template" id="view-playlist">
   <img class="playlist-capsule-thumbnail" src="<%= poster %>"/>
   <div class="playlist-capsule-wrapper">
-    <div class="playlist-capsule-title"> <input class="toggle-in-playlist" type="checkbox" <%= inPlaylist ? "checked='checked'" : "" %>/> <%= title %></div>
+    <div class="playlist-capsule-title"> <input class="in-playlist-toggle" type="checkbox" <%= inPlaylist ? "checked='checked'" : "" %>/> <%= title %></div>
   </div>
 </script>
 <script type="text/template" id="view-controls">
@@ -306,8 +306,7 @@ var PlaylistItemView = Backbone.View.extend({
   className: "playlist-view grid-item",
   template: _.template($("#view-playlist").html()),
   events: {
-    "click" : "loadCapsule",
-    "click .toggle-in-playlist" : "toggleInPlaylist"
+    "click" : "loadCapsule"
   },
   render: function () {
     this.$el.html(this.template(this.model.toJSON()));
@@ -333,11 +332,19 @@ var PlaylistBuilderView = Backbone.View.extend({
  */
 var PlaylistSelectorView = Backbone.View.extend({
   tagName : "ul",
+  className : "playlist-selector",
   playlistViews : [],
   initialize : function () {
     // iterate over the collection and add all active models as subviews
     this.fillPlaylist();
     // listen to a change in the collection to rebuild the list
+    this.listenTo(this.collection, "change:inPlaylist", this.resetPlaylist);
+  },
+  remove : function () {
+    _(this.playlistViews).each(function (view) {view.remove()});
+    this.$el.remove();
+    this.stopListening();
+    return this;
   },
   render : function () {
     var self = this;
@@ -345,6 +352,15 @@ var PlaylistSelectorView = Backbone.View.extend({
       self.$el.append(subview.render().$el);
     });
     return this;
+  },
+  resetPlaylist : function () {
+    // reset the playlist
+    _(this.playlistViews).each(function (view) {view.remove()});
+    this.playlistViews = []
+    this.fillPlaylist();
+    // rerender the element
+    this.$el.empty();
+    this.render();
   },
   fillPlaylist : function () {
     _.each(this.playlistViews, function(subview) {
@@ -360,52 +376,76 @@ var PlaylistSelectorView = Backbone.View.extend({
 });
 
 /**
+ * Section toggle button
+ */
+var SectionToggleView = Backbone.View.extend({
+  tagName: "a",
+  className : "section",
+  events : {
+    "click": "routeToSection"
+  },
+  template: _.template($("#view-sections").html()),
+  initialize : function (params) {
+    this.section = params.section;
+  },
+  render : function () {
+    this.$el.html(this.template({section: this.section}));
+    return this;
+  },
+  routeToSection : function () {
+    // Update the playlist with right sections
+    playlist.toggleSection(this.section);
+    // Navigate to the section
+    playlistRouter.navigateToSection(this.section);
+  }
+});
+
+/**
  * Displays the playlist and playlist administration area
  */
 var PlaylistView = Backbone.View.extend({
-  el: $("#playlist"),
+  el: $("#list-view"),
   events: {
-    "click .section" : "toggleSection",
     "click #advanced-playlist" : "advancedPlaylist"
   },
   initialize : function () {
+    this.sectionToggleViews = [];
     // Create a view to list capsules and edit them
     this.playlistSelectorView = new PlaylistSelectorView({collection: playlist});
     this.playlistBuilderView = new PlaylistBuilderView({collection: playlist});
     this.activeView = this.playlistSelectorView;
+    this.fillSections();
     this.render();
   },
   render : function () {
-    this.$el.html(this.activeView.render().$el);
+    this.$("#playlist").html(this.activeView.render().$el);
+
+    this.$("#sections").empty();
+    _(this.sectionToggleViews).each(function (view) {
+        this.$("#sections").append(view.render().$el);
+    });
+
     return this;
   },
   remove: function () {
     this.playlistSelectorView.remove();
     this.playlistBuilderView.remove();
+    _(this.sectionToggleViews).each(function (view) {
+        view.remove();
+    });
     this.stopListening();
     this.$el.remove();
     return this;
-  },
-  toggleSection: function (e) {
-    // Update the playlist with right sections
-    playlist.toggleSection(e.target.innerHTML);
-    // Navigate to the section
-    playlistRouter.navigateToSection(e.target.innerHTML);
   },
   advancedPlaylist: function (e) {
     $("#sidebar").toggleClass("advanced");
   },
   fillSections : function () {
-    var sectionTemplate = _.template($("#view-sections").html());
-
+    var self = this;
     _(playlist.pluck("section")).chain()
     .uniq()
     .each(function (section) {
-      this.$("#sections").append(
-        sectionTemplate(
-          {"section" : section}
-        )
-      );
+      self.sectionToggleViews.push(new SectionToggleView({section: section}))
     });
   }
 });

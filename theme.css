@@ -296,6 +296,10 @@ a:link, a:hover, a:active, a:visited {
   font-size: .75em;
 }
 
+.playlist-selector .in-playlist-toggle {
+  display: none;
+}
+
 /*
 @media screen and (orientation: portrait) {
   #header {
