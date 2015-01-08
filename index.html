@@ -529,6 +529,8 @@ var PlaylistRouter = Backbone.Router.extend({
       return sectionPath;
     }).value();
     this.sections = _.object(rawSections, this.sections);
+
+    this.listenTo(window.playlist, "toggleSection", this.navigateQueue);
   },
   navigateToSection: function (section) {
     this.navigate(this.sections[section], {trigger: false, replace: true});
@@ -561,20 +563,20 @@ var PlaylistRouter = Backbone.Router.extend({
 
     if (playlist.selected().length == playlist.length) {
       var destination = "/";
-    } else if ( // All items in a playlist are active
-      sections.length == 1 &&
-        playlist.where({inPlaylist: true, section: sections[0]}).length == playlist.where({section: sections[0]}).length
+    } else if ( // All items in a section are active
+      sections.length == 1 // Only one section has enabled capsules
+      && playlist.where({inPlaylist: true, section: sections[0]}).length == playlist.where({section: sections[0]}).length // All capsules in the section are enabled
       ) {
-      playlistRouter.navigateToSection(sections[0]);
+      this.navigateToSection(sections[0]);
       return;
     }
-    else {
+    else { // custom playlist
       var destination = _.reduce(playlist.selected(), function (url, obj) {
         return url + "/" + obj.get('path');
       }, "");
     }
 
-    playlistRouter.navigate(destination, {trigger: false, replace: true});
+    this.navigate(destination, {trigger: false, replace: true});
   }
 });
 
