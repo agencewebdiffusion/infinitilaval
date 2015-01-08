@@ -117,14 +117,16 @@ var Playlist = Backbone.Collection.extend({
   toggleSection: function (newSection) {
     // Set all videos in the section to on
     _(this.where({section: newSection})).each(function (capsule) {
-      capsule.set('inPlaylist', true);
-    })
+      capsule.set({'inPlaylist' : true});
+    });
     // Set all videos out of the section to off
     _(this.filter(function (capsule) {
       return capsule.get('section') != newSection;
     })).each(function (capsule) {
-      capsule.set('inPlaylist', false);
-    })
+      capsule.set({'inPlaylist' : false});
+    });
+    // Only send one event for views to redraw
+    this.trigger("toggleSection");
   },
   // Find the next neighbor in the global playlist
   // Build a list of capsules after and before the active capsule
@@ -338,7 +340,7 @@ var PlaylistSelectorView = Backbone.View.extend({
     // iterate over the collection and add all active models as subviews
     this.fillPlaylist();
     // listen to a change in the collection to rebuild the list
-    this.listenTo(this.collection, "change:inPlaylist", this.resetPlaylist);
+    this.listenTo(this.collection, "toggleSection", this.resetPlaylist);
   },
   remove : function () {
     _(this.playlistViews).each(function (view) {view.remove()});
@@ -550,11 +552,11 @@ var playlist = new Playlist();
 
 playlist.add(playlistData);
 
-var appView = new AppView();
 
 $(function () {
   window.playlistRouter = new PlaylistRouter();
   Backbone.history.start();
+  var appView = new AppView();
 });
 </script>
 </body>
