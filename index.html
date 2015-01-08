@@ -285,17 +285,10 @@ var PlaylistBuilderItemView = Backbone.View.extend({
   },
   initialize : function () {
     // Listen to the model to pick up changes in playlist state
-    this.listenTo(this.model, "change:inPlaylist", function () {
-      if(!this.model.get('inPlaylist')) {
-        this.$el.addClass("out-of-playlist");
-      } else {
-        this.$el.removeClass("out-of-playlist");
-      }
-    });
+    this.listenTo(this.model, "change:inPlaylist", this.render);
   },
   // Add or remove the model from the playlist
   toggleInPlaylist : function (event) {
-    event.stopImmediatePropagation();
     this.model.toggleInPlaylist();
   }
 });
@@ -326,7 +319,37 @@ var PlaylistItemView = Backbone.View.extend({
  * should be in the playlist
  */
 var PlaylistBuilderView = Backbone.View.extend({
-
+  tagName : "ul",
+  className : "playlist-builder",
+  playlistViews : [],
+  initialize : function () {
+    // iterate over the collection and add all active models as subviews
+    this.fillPlaylist();
+  },
+  remove : function () {
+    _(this.playlistViews).each(function (view) {view.remove()});
+    this.$el.remove();
+    this.stopListening();
+    return this;
+  },
+  render : function () {
+    var self = this;
+    _.each(this.playlistViews, function (subview) {
+      self.$el.append(subview.render().$el);
+    });
+    return this;
+  },
+  fillPlaylist : function () {
+    _.each(this.playlistViews, function(subview) {
+      subview.remove();
+    });
+    this.playlistViews = [];
+    this.collection.each(this.addPlaylistItem, this);
+  },
+  addPlaylistItem : function (capsule) {
+    var view = new PlaylistBuilderItemView({model: capsule});
+    this.playlistViews.push(view);
+  }
 });
 
 /**
@@ -358,7 +381,7 @@ var PlaylistSelectorView = Backbone.View.extend({
   resetPlaylist : function () {
     // reset the playlist
     _(this.playlistViews).each(function (view) {view.remove()});
-    this.playlistViews = []
+    this.playlistViews = [];
     this.fillPlaylist();
     // rerender the element
     this.$el.empty();
@@ -369,7 +392,7 @@ var PlaylistSelectorView = Backbone.View.extend({
       subview.remove();
     });
     this.playlistViews = [];
-    _(playlist.selected()).each(this.addPlaylistItem, this);
+    _(this.collection.selected()).each(this.addPlaylistItem, this);
   },
   addPlaylistItem : function (capsule) {
     var view = new PlaylistItemView({model: capsule});
@@ -392,6 +415,7 @@ var SectionToggleView = Backbone.View.extend({
   },
   render : function () {
     this.$el.html(this.template({section: this.section}));
+    this.delegateEvents();
     return this;
   },
   routeToSection : function () {
@@ -413,8 +437,7 @@ var PlaylistView = Backbone.View.extend({
   initialize : function () {
     this.sectionToggleViews = [];
     // Create a view to list capsules and edit them
-    this.playlistSelectorView = new PlaylistSelectorView({collection: playlist});
-    this.playlistBuilderView = new PlaylistBuilderView({collection: playlist});
+    this.playlistSelectorView = new PlaylistSelectorView({collection: this.collection});
     this.activeView = this.playlistSelectorView;
     this.fillSections();
     this.render();
@@ -439,8 +462,16 @@ var PlaylistView = Backbone.View.extend({
     this.$el.remove();
     return this;
   },
-  advancedPlaylist: function (e) {
-    $("#sidebar").toggleClass("advanced");
+  advancedPlaylist: function () {
+    this.activeView.remove();
+    if(this.isBuilding == false) {
+      this.activeView = new PlaylistBuilderView({collection: this.collection});
+    } else {
+      this.activeView = new PlaylistSelectorView({collection: this.collection});
+    }
+    this.isBuilding = !this.isBuilding;
+    this.render();
+    this.$("#advanced-playlist").toggleClass("advanced");
   },
   fillSections : function () {
     var self = this;
