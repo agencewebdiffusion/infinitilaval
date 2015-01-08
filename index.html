@@ -221,7 +221,10 @@ var PlayerView = Backbone.View.extend({
     // The playqueue returned nothing active
     if (activeModel == null) return;
     // Clean up lingering mediaelement player
-    if (typeof this.screen !== "undefined") this.screen.remove();
+    if (typeof this.screen !== "undefined") {
+      this.stopListening(this.screen);
+      this.screen.remove();
+    }
 
     this.screen = new VideoView({model: activeModel});
     $("#timeline-title").html(activeModel.get('title'));
