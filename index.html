@@ -13,36 +13,38 @@
   <script src="js/mediaelement/mediaelement-and-player.js"></script>
   <link rel="stylesheet" href="js/mediaelement/mediaelementplayer.css" />
   <link rel="stylesheet" href="theme.css" />
+  <link href="http://maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css" rel="stylesheet">
 </head>
 <body>
 
-<div id="header">
-  <div id="logo">
-    <a href="http://vimonttoyotalaval.com">Retour à Vimont Toyota Laval</a>
+<div id="menu-icons">
+  <div id="close-the-app">
+    <i class="fa fa-close"></i>
   </div>
-  <div id="sections">
-    <script type="text/template" id="view-sections">
-      <a class="section"><%= section %></a>
-    </script>
+
+  <div id="list-shortcut">
+    <a href="#scroll-view"><i class="fa fa-list"></i></a>
   </div>
 </div>
 
-<div id="main-view">
+<div class="fullscreen-placeholder"></div>
+<div id="player-view" class="app-container">
   <div id="controls">
-    <a id="controls-back">précédent</a>
-    <a id="controls-next">suivant</a>
-    <div id="timeline">
-      <div id="timeline-buffer"></div>
-      <div id="timeline-duration"></div>
-      <div id="timeline-title"></div>
+    <a id="controls-back"><i class="fa fa-chevron-left"></i></a>
+    <a id="controls-next"><i class="fa fa-chevron-right"></i></a>
+  </div>
+  <div id="controls-wrapper" class="app-container column">
+    <div id="screen" class="app-modal">
+      <div id="video-wrapper"></div>
+      <div id="timeline">
+        <div id="timeline-buffer"></div>
+        <div id="timeline-duration"></div>
+        <div id="timeline-title"></div>
+      </div>
     </div>
   </div>
-
-  <div id="screen">
-  </div>
-
   <script type="text/template" id="view-video">
-  <video id="media-element" poster="<%= poster %>" controls>
+  <video id="media-element" poster="<%= poster %>" controls style="height: 100%; width: 100%">
     <% _.each(sources, function (source, type) { %>
       <source type="<%= type %>" src="<%= source %>"/>
     <% }); %>
@@ -51,16 +53,31 @@
 
 </div>
 
-<div id="sidebar">
-  <ul id="playlist">
-  </ul>
-  <a id="advanced-playlist">...</a>
+<div id="scroll-view" class="">
+  <div id="list-view" class="">
+    <div id="playlist" class="">
+    </div>
+    <div id="toggles">
+      <div id="sections">
+        <script type="text/template" id="view-sections">
+          <i class="fa fa-bookmark"></i> <%= section %>
+        </script>
+      </div>
+      <a id="advanced-playlist"><i class="fa fa-list-ol"></i> Créer une liste</a>
+    </div>
+  </div>
+
+  <div id="campaign-view">
+
+  </div>
+
 </div>
 
 <script type="text/template" id="view-playlist">
   <img class="playlist-capsule-thumbnail" src="<%= poster %>"/>
-  <div class="playlist-capsule-title"> <input class="toggle-in-playlist" type="checkbox" <%= inPlaylist ? "checked='checked'" : "" %>/> <%= title %></div>
-
+  <div class="playlist-capsule-wrapper">
+    <div class="playlist-capsule-title"> <input class="in-playlist-toggle" type="checkbox" <%= inPlaylist ? "checked='checked'" : "" %>/> <%= title %></div>
+  </div>
 </script>
 <script type="text/template" id="view-controls">
 </script>
@@ -82,12 +99,17 @@ var Capsule = Backbone.Model.extend({
   toggleInPlaylist: function () {
     this.set({inPlaylist: !this.get("inPlaylist")});
     return this.get("inPlaylist");
+  },
+  // Send an event to the collection that this capsule should be played
+  play : function () {
+    this.trigger("play", this);
   }
 });
 
 var Playlist = Backbone.Collection.extend({
   model: Capsule,
   initialize: function () {
+
   },
   selected: function () {
     return this.where({inPlaylist: true});
@@ -95,14 +117,16 @@ var Playlist = Backbone.Collection.extend({
   toggleSection: function (newSection) {
     // Set all videos in the section to on
     _(this.where({section: newSection})).each(function (capsule) {
-      capsule.set('inPlaylist', true);
-    })
+      capsule.set({'inPlaylist' : true});
+    });
     // Set all videos out of the section to off
     _(this.filter(function (capsule) {
       return capsule.get('section') != newSection;
     })).each(function (capsule) {
-      capsule.set('inPlaylist', false);
-    })
+      capsule.set({'inPlaylist' : false});
+    });
+    // Only send one event for views to redraw
+    this.trigger("toggleSection");
   },
   // Find the next neighbor in the global playlist
   // Build a list of capsules after and before the active capsule
@@ -124,13 +148,12 @@ var Playlist = Backbone.Collection.extend({
 
 // Contains the video player
 var VideoView = Backbone.View.extend({
-  el: $("#screen"),
+  el: $("#video-wrapper"),
   template: _.template($("#view-video").html()),
   events: {
   },
   initialize: function() {
     this.render();
-    this.on("vimont:canplay", this.videoCanPlay);
   },
   render: function () {
     var self = this;
@@ -159,7 +182,13 @@ var VideoView = Backbone.View.extend({
 
     return this;
   },
-  destroy: function () {
+  remove: function () {
+    this.destroyMEjs();
+    this.$el.empty();
+    this.stopListening();
+    return this;
+  },
+  destroyMEjs: function () {
     if (mejs) {
       var players = _.keys(mejs.players);
       _.each(players, function(player) {
@@ -167,164 +196,42 @@ var VideoView = Backbone.View.extend({
       });
     }
   },
-  loadCapsule: function (capsule) {
-    this.model = capsule;
-    this.player.pause();
-    this.player.setSrc(
-      _(capsule.get('sources')) // Transmute our data into the mejs format
-      .chain()
-      .pairs()
-      .map(function (source) {return _.object(['type', 'src'], source)})
-      .value()
-      );
-
-    // There should be a better way to do this
-    $(".mejs-poster")
-    .css({"background-image" : "url(" + capsule.get('poster') + ")"}).show()
-    .find("img").attr('src',capsule.get('poster'));
-    if(typeof this.player.setPoster !== "undefined") {
-      $("video#media-element").attr({'poster': capsule.get('poster')});
-      $(".mejs-playpause-button").removeClass('mejs-pause').addClass('mejs-play');
-      $(".mejs-overlay-play").show();
-    }
-  },
   togglePlay: function () {
     this.player.play();
-  },
-  videoCanPlay: function (event) {
   }
 });
 
-// Contains the playlist of available capsules
-var PlaylistView = Backbone.View.extend({
-  tagName: "li",
-  className: "playlist-view",
-  template: _.template($("#view-playlist").html()),
+/**
+ * Controls the video player
+ */
+var PlayerView = Backbone.View.extend({
+  el: $("#player-view"),
   events: {
-    "click" : "loadCapsule",
-    "click .toggle-in-playlist" : "toggleInPlaylist"
-  },
-  render: function () {
-    this.$el.html(this.template(this.model.toJSON()));
-    return this;
-  },
-
-  initialize : function () {
-    // Listen to the model to pick up changes in playlist state
-    this.listenTo(this.model, "change:inPlaylist", function () {
-      if(!this.model.get('inPlaylist')) {
-        this.$el.addClass("out-of-playlist");
-      } else {
-        this.$el.removeClass("out-of-playlist");
-      }
-      this.render();
-    });
-  },
-  loadCapsule : function (event) {
-    if($(event.target).parents(".advanced").length) {
-      // In advanced mode, clicking the playlist item should toggle it
-      this.toggleInPlaylist(event);
-    } else {
-      // Send a message to the AppView to play this capsule
-      this.trigger('vimont:play', this);
-    }
-  },
-  // Add or remove the model from the playlist
-  toggleInPlaylist : function (event) {
-    event.stopImmediatePropagation();
-    this.model.toggleInPlaylist();
-    this.trigger('vimont:changePlayqueue', this);
-  }
-});
-
-// Builds the global App
-var AppView = Backbone.View.extend({
-  el: $("body"),
-  events : {
-    "click .section" : "toggleSection",
     "click #controls-play" : "togglePlay",
     "click #controls-next" : "nextCapsule",
-    "click #controls-back" : "previousCapsule",
-    "click #advanced-playlist" : "advancedPlaylist"
+    "click #controls-back" : "previousCapsule"
   },
-  initialize : function () {
-    this.fillPlaylist();
-    this.fillSections();
-  },
-  fillPlaylist : function () {
-    this.$("#playlist").empty();
-    playlist.each(this.addPlaylistItem, this);
-  },
-  fillSections : function () {
-    var sectionTemplate = _.template($("#view-sections").html());
-
-    _(playlist.pluck("section")).chain()
-    .uniq()
-    .each(function (section) {
-      this.$("#sections").append(
-        sectionTemplate(
-          {"section" : section}
-        )
-      );
-    });
-  },
-  addPlaylistItem : function (capsule) {
-    var view = new PlaylistView({model: capsule});
-    this.listenTo(view, "vimont:play", this.loadCapsule);
-    this.listenTo(view, "vimont:changePlayqueue", this.navigateQueue);
-    this.$("#playlist").append(view.render().el);
-  },
-  navigateQueue: function () {
-    // If all active capsules have the same section, use that as the url
-    var sections = _(playlist.selected())
-    .chain()
-    .map(function (a) {return a.get('section')})
-    .uniq()
-    .value();
-
-    if (playlist.selected().length == playlist.length) {
-      var destination = "/";
-    } else if ( // All items in a playlist are active
-      sections.length == 1 &&
-        playlist.where({inPlaylist: true, section: sections[0]}).length == playlist.where({section: sections[0]}).length
-      ) {
-      playlistRouter.navigateToSection(sections[0]);
-      return;
-    }
-    else {
-      var destination = _.reduce(playlist.selected(), function (url, obj) {
-        return url + "/" + obj.get('path');
-      }, "");
-    }
-
-    playlistRouter.navigate(destination, {trigger: false, replace: true});
-  },
-  loadCapsule: function (capsule) {
-    this.openScreen(capsule.model);
+  initialize: function () {
+    // Listen to the collection for a video player start
+    //
+    this.openScreen(playlist.selected()[0]);
+    this.listenTo(playlist, "play", this.openScreen);
   },
   openScreen: function (activeModel) {
     // The playqueue returned nothing active
     if (activeModel == null) return;
     // Clean up lingering mediaelement player
     if (typeof this.screen !== "undefined") {
-      this.screen.loadCapsule(activeModel);
-    } else {
-      this.screen = new VideoView({model: activeModel});
-      this.listenTo(this.screen, "vimont:ended", this.endCapsule);
-      this.listenTo(this.screen, "vimont:playing", this.resumed);
+      this.stopListening(this.screen);
+      this.screen.remove();
     }
 
+    this.screen = new VideoView({model: activeModel});
     $("#timeline-title").html(activeModel.get('title'));
 
-  },
-  toggleSection: function (e) {
-    // Update the playlist with right sections
-    playlist.toggleSection(e.target.innerHTML);
-    // Navigate to the section
-    playlistRouter.navigateToSection(e.target.innerHTML);
-  },
-  advancedPlaylist: function (e) {
-    $("#sidebar").toggleClass("advanced");
+    // Should these events route through the model instead of the subview?
+    this.listenTo(this.screen, "vimont:ended", this.endCapsule);
+    this.listenTo(this.screen, "vimont:playing", this.resumed);
   },
   togglePlay: function () {
     if(this.screen.togglePlay()) {
@@ -365,6 +272,252 @@ var AppView = Backbone.View.extend({
   }
 });
 
+/**
+ * A card in a playlist builder view
+ */
+var PlaylistBuilderItemView = Backbone.View.extend({
+  tagName: "li",
+  className: "playlist-view grid-item",
+  template: _.template($("#view-playlist").html()),
+  events: {
+    "click" : "toggleInPlaylist"
+  },
+  render: function () {
+    this.$el.html(this.template(this.model.toJSON()));
+    return this;
+  },
+  initialize : function () {
+    // Listen to the model to pick up changes in playlist state
+    this.listenTo(this.model, "change:inPlaylist", this.render);
+  },
+  // Add or remove the model from the playlist
+  toggleInPlaylist : function (event) {
+    this.model.toggleInPlaylist();
+  }
+});
+
+/**
+ * A playlist card to skip to a specific video
+ */
+var PlaylistItemView = Backbone.View.extend({
+  tagName: "li",
+  className: "playlist-view grid-item",
+  template: _.template($("#view-playlist").html()),
+  events: {
+    "click" : "loadCapsule"
+  },
+  render: function () {
+    this.$el.html(this.template(this.model.toJSON()));
+    return this;
+  },
+  loadCapsule : function (event) {
+    // Send a message to the model to play this capsule
+    // Change me to a collection event, player should listen to the collection
+    this.model.play();
+  }
+});
+
+/**
+ * Builds a list of cards that can be toggled on or off to indicate if they
+ * should be in the playlist
+ */
+var PlaylistBuilderView = Backbone.View.extend({
+  tagName : "ul",
+  className : "playlist-builder",
+  playlistViews : [],
+  initialize : function () {
+    // iterate over the collection and add all active models as subviews
+    this.fillPlaylist();
+  },
+  remove : function () {
+    _(this.playlistViews).each(function (view) {view.remove()});
+    this.$el.remove();
+    this.stopListening();
+    return this;
+  },
+  render : function () {
+    var self = this;
+    _.each(this.playlistViews, function (subview) {
+      self.$el.append(subview.render().$el);
+    });
+    return this;
+  },
+  fillPlaylist : function () {
+    _.each(this.playlistViews, function(subview) {
+      subview.remove();
+    });
+    this.playlistViews = [];
+    this.collection.each(this.addPlaylistItem, this);
+  },
+  addPlaylistItem : function (capsule) {
+    var view = new PlaylistBuilderItemView({model: capsule});
+    this.playlistViews.push(view);
+  }
+});
+
+/**
+ * Builds a list of cards to skip to a specific capsule
+ */
+var PlaylistSelectorView = Backbone.View.extend({
+  tagName : "ul",
+  className : "playlist-selector",
+  playlistViews : [],
+  initialize : function () {
+    // iterate over the collection and add all active models as subviews
+    this.fillPlaylist();
+    // listen to a change in the collection to rebuild the list
+    this.listenTo(this.collection, "toggleSection", this.resetPlaylist);
+  },
+  remove : function () {
+    _(this.playlistViews).each(function (view) {view.remove()});
+    this.$el.remove();
+    this.stopListening();
+    return this;
+  },
+  render : function () {
+    var self = this;
+    _.each(this.playlistViews, function (subview) {
+      self.$el.append(subview.render().$el);
+    });
+    return this;
+  },
+  resetPlaylist : function () {
+    // reset the playlist
+    _(this.playlistViews).each(function (view) {view.remove()});
+    this.playlistViews = [];
+    this.fillPlaylist();
+    // rerender the element
+    this.$el.empty();
+    this.render();
+  },
+  fillPlaylist : function () {
+    _.each(this.playlistViews, function(subview) {
+      subview.remove();
+    });
+    this.playlistViews = [];
+    _(this.collection.selected()).each(this.addPlaylistItem, this);
+  },
+  addPlaylistItem : function (capsule) {
+    var view = new PlaylistItemView({model: capsule});
+    this.playlistViews.push(view);
+  }
+});
+
+/**
+ * Section toggle button
+ */
+var SectionToggleView = Backbone.View.extend({
+  tagName: "a",
+  className : "section",
+  events : {
+    "click": "routeToSection"
+  },
+  template: _.template($("#view-sections").html()),
+  initialize : function (params) {
+    this.section = params.section;
+  },
+  render : function () {
+    this.$el.html(this.template({section: this.section}));
+    this.delegateEvents();
+    return this;
+  },
+  routeToSection : function () {
+    // Update the playlist with right sections
+    playlist.toggleSection(this.section);
+    // Navigate to the section
+    playlistRouter.navigateToSection(this.section);
+  }
+});
+
+/**
+ * Displays the playlist and playlist administration area
+ */
+var PlaylistView = Backbone.View.extend({
+  el: $("#list-view"),
+  events: {
+    "click #advanced-playlist" : "advancedPlaylist"
+  },
+  initialize : function () {
+    this.sectionToggleViews = [];
+    // Create a view to list capsules and edit them
+    this.activeView = new PlaylistSelectorView({collection: this.collection});
+    this.isBuilding = false;
+    this.fillSections();
+    this.render();
+  },
+  render : function () {
+    this.$("#playlist").html(this.activeView.render().$el);
+
+    this.$("#sections").empty();
+    _(this.sectionToggleViews).each(function (view) {
+        this.$("#sections").append(view.render().$el);
+    });
+
+    return this;
+  },
+  remove: function () {
+    this.activeView.remove();
+    _(this.sectionToggleViews).each(function (view) {
+        view.remove();
+    });
+    this.stopListening();
+    this.$el.remove();
+    return this;
+  },
+  advancedPlaylist: function () {
+    this.activeView.remove();
+    if(this.isBuilding == false) {
+      this.activeView = new PlaylistBuilderView({collection: this.collection});
+    } else {
+      this.activeView = new PlaylistSelectorView({collection: this.collection});
+    }
+    this.isBuilding = !this.isBuilding;
+    this.render();
+    this.$("#advanced-playlist").toggleClass("advanced");
+  },
+  fillSections : function () {
+    var self = this;
+    _(playlist.pluck("section")).chain()
+    .uniq()
+    .each(function (section) {
+      self.sectionToggleViews.push(new SectionToggleView({section: section}))
+    });
+  }
+});
+
+/**
+ * Builds the global App
+ */
+var AppView = Backbone.View.extend({
+  el: $("body"),
+  events : {
+    "click #close-the-app" : "closeTheApp"
+  },
+  initialize : function () {
+    // Create a collection of video capsules
+    // Using global namespace for now, not sure whether this should be a view
+    // object or a specific app object
+    this.playlist = window.playlist;
+    // Create a player interface
+    this.player = new PlayerView({collection: this.playlist});
+    // Create a playlist interface
+    this.playlistView = new PlaylistView({collection: this.playlist});
+  },
+  remove : function () {
+    this.player.remove();
+    this.playlistView.remove();
+
+    this.$el.remove();
+    this.stopListening();
+    return this;
+  },
+  closeTheApp : function () {
+    // destroy the lightbox and return the user to the page if this is a
+    // lightbox app
+    this.remove();
+  }
+});
+
 var PlaylistRouter = Backbone.Router.extend({
   routes: {
     "*capsules": "customList"
@@ -378,6 +531,8 @@ var PlaylistRouter = Backbone.Router.extend({
       return sectionPath;
     }).value();
     this.sections = _.object(rawSections, this.sections);
+
+    this.listenTo(window.playlist, "toggleSection", this.navigateQueue);
   },
   navigateToSection: function (section) {
     this.navigate(this.sections[section], {trigger: false, replace: true});
@@ -397,9 +552,33 @@ var PlaylistRouter = Backbone.Router.extend({
         });
       }
     }
-
     // Open the first active capsule
-    appView.openScreen(playlist.selected()[0]);
+    // appView.openScreen(playlist.selected()[0]);
+  },
+  navigateQueue: function () {
+    // If all active capsules have the same section, use that as the url
+    var sections = _(playlist.selected())
+    .chain()
+    .map(function (a) {return a.get('section')})
+    .uniq()
+    .value();
+
+    if (playlist.selected().length == playlist.length) {
+      var destination = "/";
+    } else if ( // All items in a section are active
+      sections.length == 1 // Only one section has enabled capsules
+      && playlist.where({inPlaylist: true, section: sections[0]}).length == playlist.where({section: sections[0]}).length // All capsules in the section are enabled
+      ) {
+      this.navigateToSection(sections[0]);
+      return;
+    }
+    else { // custom playlist
+      var destination = _.reduce(playlist.selected(), function (url, obj) {
+        return url + "/" + obj.get('path');
+      }, "");
+    }
+
+    this.navigate(destination, {trigger: false, replace: true});
   }
 });
 
@@ -408,11 +587,11 @@ var playlist = new Playlist();
 
 playlist.add(playlistData);
 
-var appView = new AppView();
 
 $(function () {
   window.playlistRouter = new PlaylistRouter();
   Backbone.history.start();
+  var appView = new AppView();
 });
 </script>
 </body>
