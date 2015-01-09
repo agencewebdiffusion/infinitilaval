@@ -440,8 +440,8 @@ var PlaylistView = Backbone.View.extend({
   initialize : function () {
     this.sectionToggleViews = [];
     // Create a view to list capsules and edit them
-    this.playlistSelectorView = new PlaylistSelectorView({collection: this.collection});
-    this.activeView = this.playlistSelectorView;
+    this.activeView = new PlaylistSelectorView({collection: this.collection});
+    this.isBuilding = false;
     this.fillSections();
     this.render();
   },
@@ -456,8 +456,7 @@ var PlaylistView = Backbone.View.extend({
     return this;
   },
   remove: function () {
-    this.playlistSelectorView.remove();
-    this.playlistBuilderView.remove();
+    this.activeView.remove();
     _(this.sectionToggleViews).each(function (view) {
         view.remove();
     });
