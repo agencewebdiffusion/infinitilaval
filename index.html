@@ -429,6 +429,56 @@ var SectionToggleView = Backbone.View.extend({
   }
 });
 
+var PlaylistControlsView = Backbone.View.extend({
+  initialize : function () {
+    this.sectionToggleViews = [];
+    this.fillSections();
+    this.render();
+  },
+  render : function () {
+    this.$el.empty();
+
+    // Add an input box to select the url
+    $("<input id='playlist-url' readonly/>").appendTo(this.$el);
+
+    var self = this;
+    _(this.sectionToggleViews).each(function (view) {
+      self.$el.append(view.render().$el);
+    });
+
+    // Add input boxes to edit campaign tracking
+
+    _(['campaignSource','campaignMedium','campaignId']).each(function (field) {
+      $("<input id='edit-" + field + "'/>")
+      .val(window.localStorage.getItem('awd.' + field))
+      .attr('placeholder',field)
+      .bind('keyup', function (e) {
+        console.log($(this).val());
+        window.localStorage.setItem('awd.' + field, $(this).val());
+        window.playlistRouter.ga('set', field, $(this).val());
+        self.recreateUrl();
+      })
+      .appendTo(self.$el);
+    });
+
+    return this;
+  },
+  fillSections : function () {
+    var self = this;
+    _(this.collection.pluck("section")).chain()
+    .uniq()
+    .each(function (section) {
+      self.sectionToggleViews.push(new SectionToggleView({section: section}))
+    });
+  },
+  recreateUrl : function () {
+    // Get the url fragment from the router
+    // Get the query string for analytics campaign tracking
+    // Get the document location
+    // Reset the url in the input box
+  }
+});
+
 /**
  * Displays the playlist and playlist administration area
  */
@@ -438,28 +488,25 @@ var PlaylistView = Backbone.View.extend({
     "click #advanced-playlist" : "advancedPlaylist"
   },
   initialize : function () {
-    this.sectionToggleViews = [];
+    this.controlsView = new PlaylistControlsView({collection: this.collection});
     // Create a view to list capsules and edit them
     this.activeView = new PlaylistSelectorView({collection: this.collection});
     this.isBuilding = false;
-    this.fillSections();
     this.render();
   },
   render : function () {
     this.$("#playlist").html(this.activeView.render().$el);
 
     this.$("#sections").empty();
-    _(this.sectionToggleViews).each(function (view) {
-        this.$("#sections").append(view.render().$el);
-    });
+    if(this.isBuilding) {
+      this.$("#sections").html(this.controlsView.render().$el);
+    }
 
     return this;
   },
   remove: function () {
     this.activeView.remove();
-    _(this.sectionToggleViews).each(function (view) {
-        view.remove();
-    });
+    this.controlsView.remove();
     this.stopListening();
     this.$el.remove();
     return this;
@@ -474,14 +521,6 @@ var PlaylistView = Backbone.View.extend({
     this.isBuilding = !this.isBuilding;
     this.render();
     this.$("#advanced-playlist").toggleClass("advanced");
-  },
-  fillSections : function () {
-    var self = this;
-    _(playlist.pluck("section")).chain()
-    .uniq()
-    .each(function (section) {
-      self.sectionToggleViews.push(new SectionToggleView({section: section}))
-    });
   }
 });
 
@@ -537,6 +576,19 @@ var PlaylistRouter = Backbone.Router.extend({
     // Bind to Google Analytics
     this.ga = window.ga;
 
+    // Get campaign details from local storage if available
+    var campaignSource = localStorage.getItem("awd.campaignSource");
+    if(campaignSource !== null) {
+      this.ga('set','campaignSource', campaignSource);
+    }
+    var campaignMedium = localStorage.getItem("awd.campaignMedium");
+    if(campaignMedium !== null) {
+      this.ga('set','campaignMedium', campaignMedium);
+    }
+    var campaignId = localStorage.getItem("awd.campaignId");
+    if(campaignId !== null) {
+      this.ga('set','campaignId', campaignId);
+    }
   },
   navigateToSection: function (section) {
     this.navigate(this.sections[section], {trigger: false, replace: true});
