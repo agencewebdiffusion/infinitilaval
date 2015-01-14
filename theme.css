@@ -299,6 +299,11 @@ a:link, a:hover, a:active, a:visited {
   display: none;
 }
 
+#playlist-url {
+  width: 50%;
+  opacity: .75;
+}
+
 /*
 @media screen and (orientation: portrait) {
   #header {

@@ -128,6 +128,30 @@ var Playlist = Backbone.Collection.extend({
     // Only send one event for views to redraw
     this.trigger("toggleSection");
   },
+  getPlaylistRoute : function () {
+    // If all active capsules have the same section, use that as the url
+    var sections = _(this.selected())
+      .chain()
+      .map(function (a) {return a.get('section')})
+      .uniq()
+      .value();
+
+    if (this.selected().length == this.length) {
+      // The playlist contains all capsules
+      return "";
+    } else if (
+      // All items in a single section are active
+      sections.length == 1 // Only one section has enabled capsules
+      && this.where({inPlaylist: true, section: sections[0]}).length == this.where({section: sections[0]}).length // All capsules in the section are enabled
+      ) {
+      return playlistRouter.getSanitizedSection(sections[0]);
+    }
+    else { // custom playlist
+      return _.reduce(playlist.selected(), function (url, obj) {
+        return url + "@" + obj.get('path');
+      }, "");
+    }
+  },
   // Find the next neighbor in the global playlist
   // Build a list of capsules after and before the active capsule
   rotate: function (capsule) {
@@ -431,6 +455,7 @@ var SectionToggleView = Backbone.View.extend({
 
 var PlaylistControlsView = Backbone.View.extend({
   initialize : function () {
+    this.listenTo(this.collection, 'change:inPlaylist', this.recreateUrl);
     this.sectionToggleViews = [];
     this.fillSections();
     this.render();
@@ -473,9 +498,32 @@ var PlaylistControlsView = Backbone.View.extend({
   },
   recreateUrl : function () {
     // Get the url fragment from the router
+    var fragment = this.collection.getPlaylistRoute();
+
     // Get the query string for analytics campaign tracking
+    var queryString = [];
+
+    var campaignSource = window.localStorage.getItem('awd.campaignSource');
+    if(campaignSource) {
+      queryString.push("utm_source=" + campaignSource);
+    }
+    var campaignMedium = window.localStorage.getItem('awd.campaignMedium');
+    if(campaignMedium) {
+      queryString.push("utm_medium=" + campaignMedium);
+    }
+    var campaignId = window.localStorage.getItem('awd.campaignId');
+    if(campaignId) {
+      queryString.push("utm_campaign=" + campaignId);
+    }
+    if(queryString.length > 0) {
+      queryString = "?" + queryString.join("&");
+    } else {
+      queryString = "";
+    }
     // Get the document location
     // Reset the url in the input box
+    this.$("#playlist-url")
+      .val(encodeURI(document.location.origin + document.location.pathname + queryString + '#' + fragment ));
   }
 });
 
@@ -589,6 +637,9 @@ var PlaylistRouter = Backbone.Router.extend({
     if(campaignId !== null) {
       this.ga('set','campaignId', campaignId);
     }
+  },
+  getSanitizedSection: function (section) {
+    return this.sections[section];
   },
   navigateToSection: function (section) {
     this.navigate(this.sections[section], {trigger: false, replace: true});
