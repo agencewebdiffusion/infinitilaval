@@ -448,8 +448,6 @@ var SectionToggleView = Backbone.View.extend({
   routeToSection : function () {
     // Update the playlist with right sections
     playlist.toggleSection(this.section);
-    // Navigate to the section
-    playlistRouter.navigateToSection(this.section);
   }
 });
 
@@ -523,7 +521,7 @@ var PlaylistControlsView = Backbone.View.extend({
     // Get the document location
     // Reset the url in the input box
     this.$("#playlist-url")
-      .val(encodeURI(document.location.origin + document.location.pathname + queryString + '#' + fragment ));
+      .val(encodeURI(document.location.origin + document.location.pathname + queryString + '#lecteur/' + fragment ));
   }
 });
 
@@ -607,7 +605,7 @@ var AppView = Backbone.View.extend({
 
 var PlaylistRouter = Backbone.Router.extend({
   routes: {
-    "*capsules": "customList"
+    "lecteur/:liste" : "startPlaylist"
   },
   initialize: function () {
     //Make some nice routes out of playlist sections
@@ -619,7 +617,8 @@ var PlaylistRouter = Backbone.Router.extend({
     }).value();
     this.sections = _.object(rawSections, this.sections);
 
-    this.listenTo(window.playlist, "toggleSection", this.navigateQueue);
+    //Removing this feature
+    //this.listenTo(window.playlist, "toggleSection", this.navigateQueue);
 
     // Bind to Google Analytics
     this.ga = window.ga;
@@ -643,6 +642,25 @@ var PlaylistRouter = Backbone.Router.extend({
   },
   navigateToSection: function (section) {
     this.navigate(this.sections[section], {trigger: false, replace: true});
+  },
+  startPlaylist : function (liste) {
+    this.ga("send","pageview", Backbone.history.root + Backbone.history.getFragment());
+
+    if(liste) {
+      // If requesting a section, load all its capsules
+      if(_.contains(this.sections, liste)) {
+        playlist.toggleSection(_(this.sections).invert()[liste]);
+      } else {
+        // Otherwise load individual capsules
+        var notInQueue = _.difference(playlist.pluck("path"), liste.split(/@/));
+
+        _.each(notInQueue, function (p) {
+          _(playlist.where({path: p})).each(function(outOfPlaylist) {
+            outOfPlaylist.toggleInPlaylist();
+          });
+        });
+      }
+    }
   },
   customList: function (capsules) {
 
