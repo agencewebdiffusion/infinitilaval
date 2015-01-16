@@ -278,105 +278,62 @@ a:link, a:hover, a:active, a:visited {
   vertical-align: middle;
   height: 100%;
 }
+
+input.in-playlist-toggle {
+  vertical-align: top;
+}
+
 #toggles {
   clear: both;
 }
 
-#sections {
+#toggles input {
+  margin: .3em;
+}
+
+#toggles label {
+  margin-left: .3em;
+  font-size: .7em;
+}
+
+.sharing #sections {
+  border-top: 1px solid white;
+}
+
+#advanced-playlist .fa-close {
+  display: none;
+}
+.sharing #advanced-playlist .fa-close {
   display: inline;
+}
+.sharing #advanced-playlist .fa-share-square-o {
+  display: none;
 }
 
 #toggles a{
   display: inline-block;
   border-radius: .35em;
-  background: silver;
   color: white;
   padding: .5em;
   font-size: .75em;
+  margin: .3em;
+  cursor: pointer;
 }
 
 .playlist-selector .in-playlist-toggle {
   display: none;
 }
 
-#playlist-url {
-  width: 50%;
-  opacity: .75;
+#toggles #playlist-url {
+  width: 90%;
+  background: transparent;
+  color: white;
+  border: 1px dotted gray;
+  padding: .5em;
+  display: block;
 }
 
-/*
-@media screen and (orientation: portrait) {
-  #header {
-    right: 0;
-    position: relative;
-    height: auto;
-  }
-  #header:after {
-    content: " ";
-    display: table;
-    clear: both;
-  }
-  #main-view {
-    margin-right: 0;
-    top: auto;
-    position: relative;
-  }
 
-  #sidebar {
-    left: 0;
-    top: auto;
-    width: 100%;
-    overflow-x: scroll;
-    overflow-y: hidden;
-    white-space: nowrap;
-  }
-  #playlist {
-    text-align: left;
-    margin-bottom: 45px;
-    margin-top: 0;
-  }
-  .playlist-view {
-    width: 40%; height: 100%;
-    white-space: normal;
-    vertical-align: top;
-    display: inline-block;
-    text-align: center;
-  }
-  #advanced-playlist {
-    width: 100%;
-    bottom: 0;
-    top: auto;
-  }
-}
-@media screen and (max-width: 700px) and (orientation: landscape) {
-  body {
-    font-size: 12px;
-    line-height: 24px;
-  }
-}
-@media screen and (max-width: 400px) {
-  body {
-    font-size: 12px;
-    line-height: 24px;
-  }
-  #header {
-    line-height: 24px;
-  }
-  #advanced-playlist {
-    width: 45px;
-    left: auto;
-    right: 0;
-  }
-  #main-view {
-    margin-top: 0;
-  }
-  #playlist {
-    margin-bottom: 0;
-  }
-  .playlist-capsule-title {
-    padding: 5px;
-  }
-}
 .mejs-container,
 .mejs-video video,
 .mejs-layer {
@@ -384,4 +341,4 @@ a:link, a:hover, a:active, a:visited {
   height: auto;
   max-height: auto;
 }
-*/
+

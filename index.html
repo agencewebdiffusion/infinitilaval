@@ -58,12 +58,12 @@
     <div id="playlist" class="">
     </div>
     <div id="toggles">
+      <a id="advanced-playlist"><i class="fa fa-share-square-o"></i> Partager <i class="fa fa-close"></i></a>
       <div id="sections">
         <script type="text/template" id="view-sections">
           <i class="fa fa-bookmark"></i> <%= section %>
         </script>
       </div>
-      <a id="advanced-playlist"><i class="fa fa-list-ol"></i> Créer une liste</a>
     </div>
   </div>
 
@@ -456,33 +456,38 @@ var PlaylistControlsView = Backbone.View.extend({
     this.listenTo(this.collection, 'change:inPlaylist', this.recreateUrl);
     this.sectionToggleViews = [];
     this.fillSections();
-    this.render();
   },
   render : function () {
     this.$el.empty();
-
-    // Add an input box to select the url
-    $("<input id='playlist-url' readonly/>").appendTo(this.$el);
 
     var self = this;
     _(this.sectionToggleViews).each(function (view) {
       self.$el.append(view.render().$el);
     });
 
+    // Add an input box to select the url
+    $("<input id='playlist-url' readonly/>")
+      .bind("click", function () {
+        $(this).focus().select();
+      })
+      .appendTo(this.$el);
+
     // Add input boxes to edit campaign tracking
 
     _(['campaignSource','campaignMedium','campaignId']).each(function (field) {
-      $("<input id='edit-" + field + "'/>")
+      $("<input id='edit-" + field + "'/><br>")
       .val(window.localStorage.getItem('awd.' + field))
       .attr('placeholder',field)
       .bind('keyup', function (e) {
-        console.log($(this).val());
         window.localStorage.setItem('awd.' + field, $(this).val());
         window.playlistRouter.ga('set', field, $(this).val());
         self.recreateUrl();
       })
       .appendTo(self.$el);
+      $("<label for='edit-" + field + "'>" + field + ":</label>").insertBefore(self.$("#edit-" + field ));
     });
+
+    this.recreateUrl();
 
     return this;
   },
@@ -518,6 +523,7 @@ var PlaylistControlsView = Backbone.View.extend({
     } else {
       queryString = "";
     }
+
     // Get the document location
     // Reset the url in the input box
     this.$("#playlist-url")
@@ -566,7 +572,7 @@ var PlaylistView = Backbone.View.extend({
     }
     this.isBuilding = !this.isBuilding;
     this.render();
-    this.$("#advanced-playlist").toggleClass("advanced");
+    this.$el.toggleClass("sharing");
   }
 });
 
