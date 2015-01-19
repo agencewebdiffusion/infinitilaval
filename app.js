@@ -1,3 +1,4 @@
+
 var Capsule = Backbone.Model.extend({
   defaults: function () {
     return {
@@ -86,12 +87,16 @@ var Playlist = Backbone.Collection.extend({
 
 // Contains the video player
 var VideoView = Backbone.View.extend({
-  el: $("#video-wrapper"),
-  template: _.template($("#view-video").html()),
+  id: "video-wrapper",
+  template: _.template('\
+  <video id="media-element" poster="<%= poster %>" controls style="height: 100%; width: 100%"> \
+    <% _.each(sources, function (source, type) { %> \
+      <source type="<%= type %>" src="<%= source %>"/> \
+    <% }); %> \
+  </video>'),
   events: {
   },
   initialize: function() {
-    this.render();
     // Bind to Analytics objects to send useful events
     this.ga = window.ga;
   },
@@ -126,7 +131,7 @@ var VideoView = Backbone.View.extend({
   },
   remove: function () {
     this.destroyMEjs();
-    this.$el.empty();
+    this.$el.remove();
     this.stopListening();
     return this;
   },
@@ -147,16 +152,29 @@ var VideoView = Backbone.View.extend({
  * Controls the video player
  */
 var PlayerView = Backbone.View.extend({
-  el: $("#player-view"),
+  id: "player-view",
+  className: "app-container",
+  template: _.template('<div id="controls"> \
+    <a id="controls-back"><i class="fa fa-chevron-left"></i></a> \
+    <a id="controls-next"><i class="fa fa-chevron-right"></i></a> \
+  </div> \
+  <div id="controls-wrapper" class="app-container column"> \
+    <div id="screen" class="app-modal"> \
+      <div id="timeline"> \
+        <div id="timeline-buffer"></div> \
+        <div id="timeline-duration"></div> \
+        <div id="timeline-title"></div> \
+      </div> \
+    </div> \
+  </div>'),
   events: {
     "click #controls-play" : "togglePlay",
     "click #controls-next" : "nextCapsule",
     "click #controls-back" : "previousCapsule"
   },
   initialize: function () {
+    this.$el.html(this.template());
     // Listen to the collection for a video player start
-    //
-    this.openScreen(playlist.selected()[0]);
     this.listenTo(playlist, "play", this.openScreen);
   },
   openScreen: function (activeModel) {
@@ -169,6 +187,8 @@ var PlayerView = Backbone.View.extend({
     }
 
     this.screen = new VideoView({model: activeModel});
+    this.$('#screen').prepend(this.screen.$el);
+    this.screen.render();
     $("#timeline-title").html(activeModel.get('title'));
 
     // Should these events route through the model instead of the subview?
@@ -216,7 +236,11 @@ var PlayerView = Backbone.View.extend({
 var PlaylistBuilderItemView = Backbone.View.extend({
   tagName: "li",
   className: "playlist-view grid-item",
-  template: _.template($("#view-playlist").html()),
+  template: _.template('\
+  <img class="playlist-capsule-thumbnail" src="<%= poster %>"/> \
+  <div class="playlist-capsule-wrapper"> \
+    <div class="playlist-capsule-title"> <input class="in-playlist-toggle" type="checkbox" <%= inPlaylist ? "checked=checked" : "" %>/> <%= title %></div> \
+  </div>'),
   events: {
     "click" : "toggleInPlaylist"
   },
@@ -240,7 +264,11 @@ var PlaylistBuilderItemView = Backbone.View.extend({
 var PlaylistItemView = Backbone.View.extend({
   tagName: "li",
   className: "playlist-view grid-item",
-  template: _.template($("#view-playlist").html()),
+  template: _.template('\
+  <img class="playlist-capsule-thumbnail" src="<%= poster %>"/> \
+  <div class="playlist-capsule-wrapper"> \
+    <div class="playlist-capsule-title"> <input class="in-playlist-toggle" type="checkbox" <%= inPlaylist ? "checked=checked" : "" %>/> <%= title %></div> \
+  </div>'),
   events: {
     "click" : "loadCapsule"
   },
@@ -350,7 +378,7 @@ var SectionToggleView = Backbone.View.extend({
   events : {
     "click": "routeToSection"
   },
-  template: _.template($("#view-sections").html()),
+  template: _.template('<i class="fa fa-bookmark"></i> <%= section %>'),
   initialize : function (params) {
     this.section = params.section;
   },
@@ -449,7 +477,16 @@ var PlaylistControlsView = Backbone.View.extend({
  * Displays the playlist and playlist administration area
  */
 var PlaylistView = Backbone.View.extend({
-  el: $("#list-view"),
+  id: "scroll-view",
+  template: _.template(' \
+  <div id="list-view" class=""> \
+    <div id="playlist" class=""></div> \
+    <div id="toggles"> \
+      <a id="advanced-playlist"><i class="fa fa-share-square-o"></i> Partager <i class="fa fa-close"></i></a> \
+      <div id="sections"></div> \
+    </div> \
+  </div> \
+  <div id="campaign-view"></div>'),
   events: {
     "click #advanced-playlist" : "advancedPlaylist"
   },
@@ -458,9 +495,9 @@ var PlaylistView = Backbone.View.extend({
     // Create a view to list capsules and edit them
     this.activeView = new PlaylistSelectorView({collection: this.collection});
     this.isBuilding = false;
-    this.render();
   },
   render : function () {
+    this.$el.html(this.template());
     this.$("#playlist").html(this.activeView.render().$el);
 
     this.$("#sections").empty();
@@ -494,7 +531,12 @@ var PlaylistView = Backbone.View.extend({
  * Builds the global App
  */
 var AppView = Backbone.View.extend({
-  el: $("body"),
+  id: "awd-video-appbox",
+  template: _.template(' \
+  <div id="menu-icons"> \
+    <div id="close-the-app"><i class="fa fa-close"></i></div> \
+    <div id="list-shortcut"><a href="#scroll-view"><i class="fa fa-list"></i></a></div> \
+  </div>'),
   events : {
     "click #close-the-app" : "closeTheApp"
   },
@@ -507,6 +549,12 @@ var AppView = Backbone.View.extend({
     this.player = new PlayerView({collection: this.playlist});
     // Create a playlist interface
     this.playlistView = new PlaylistView({collection: this.playlist});
+  },
+  render : function () {
+    this.$el.html(this.template());
+    this.$el.append(this.player.$el);
+    this.$el.append(this.playlistView.render().$el);
+    return this;
   },
   remove : function () {
     this.player.remove();
@@ -632,14 +680,12 @@ var PlaylistRouter = Backbone.Router.extend({
   }
 });
 
-// Must load this from the included JSON data
-var playlist = new Playlist();
-
-playlist.add(playlistData);
-
-
 $(function () {
+
+// Must load this from the included JSON data
+  window.playlist = new Playlist(playlistData);
   window.playlistRouter = new PlaylistRouter();
   Backbone.history.start();
   var appView = new AppView();
+  $("body").append(appView.render().el);
 });
