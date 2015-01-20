@@ -535,10 +535,11 @@ var AppView = Backbone.View.extend({
   template: _.template(' \
   <div id="menu-icons"> \
     <div id="close-the-app"><i class="fa fa-close"></i></div> \
-    <div id="list-shortcut"><a href="#scroll-view"><i class="fa fa-list"></i></a></div> \
+    <div id="list-shortcut"><i class="fa fa-list"></i></div> \
   </div>'),
   events : {
-    "click #close-the-app" : "closeTheApp"
+    "click #close-the-app" : "closeTheApp",
+    "click #list-shortcut" : "scrollToThePlaylist"
   },
   initialize : function () {
     // Create a collection of video capsules
@@ -549,6 +550,8 @@ var AppView = Backbone.View.extend({
     this.player = new PlayerView({collection: this.playlist});
     // Create a playlist interface
     this.playlistView = new PlaylistView({collection: this.playlist});
+
+    this.listenTo(this.collection, "play", this.scrollToThePlayer);
   },
   render : function () {
     this.$el.html(this.template());
@@ -568,6 +571,13 @@ var AppView = Backbone.View.extend({
     // destroy the lightbox and return the user to the page if this is a
     // lightbox app
     this.remove();
+  },
+  scrollToThePlayer : function () {
+    this.$el.animate({"scrollTop" : 0});
+  },
+  scrollToThePlaylist : function () {
+    // Scrolls the app up and down between the player and playlist views
+    this.$el.animate({"scrollTop" : this.player.$el.height()});
   }
 });
 
@@ -686,6 +696,7 @@ $(function () {
   window.playlist = new Playlist(playlistData);
   window.playlistRouter = new PlaylistRouter();
   Backbone.history.start();
-  var appView = new AppView();
+  var appView = new AppView({collection: window.playlist});
   $("body").append(appView.render().el);
+  appView.scrollToThePlaylist();
 });
