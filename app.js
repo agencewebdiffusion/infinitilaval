@@ -1,3 +1,4 @@
+$(function () {
 
 var Capsule = Backbone.Model.extend({
   defaults: function () {
@@ -113,14 +114,14 @@ var VideoView = Backbone.View.extend({
       success: function (player, node) {
         self.player = player;
         player.addEventListener('ended', function (e) {
-          self.ga('send', 'event', 'capsule video', 'complet');
+          self.ga('send', 'event', 'capsule video', 'complet', self.model.get('title'));
           self.trigger('vimont:ended', e);
         });
         player.addEventListener('canplay', function (e) {
           self.trigger('vimont:canplay', e);
         });
         player.addEventListener('play', function (e) {
-          self.ga('send', 'event', 'capsule video', 'play');
+          self.ga('send', 'event', 'capsule video', 'play', self.model.get('title'));
           self.trigger('vimont:playing', e);
         });
         self.player = player;
@@ -639,58 +640,11 @@ var PlaylistRouter = Backbone.Router.extend({
         });
       }
     }
-  },
-  customList: function (capsules) {
-
-    // Send a page view with url fragment to Google Analytics
-
-    this.ga("send","pageview", Backbone.history.root + Backbone.history.getFragment());
-
-    if(capsules) {
-      // If requesting a section, load all its capsules
-      if(_.contains(this.sections, capsules)) {
-        playlist.toggleSection(_(this.sections).invert()[capsules]);
-      } else {
-        // Otherwise load individual capsules
-        var notInQueue = _.difference(playlist.pluck("path"), capsules.split(/\//));
-        _.each(notInQueue, function (p) {
-          _(playlist.where({path: p})).each(function(outOfPlaylist) {
-            outOfPlaylist.toggleInPlaylist();
-          });
-        });
-      }
-    }
-    // Open the first active capsule
-    // appView.openScreen(playlist.selected()[0]);
-  },
-  navigateQueue: function () {
-    // If all active capsules have the same section, use that as the url
-    var sections = _(playlist.selected())
-    .chain()
-    .map(function (a) {return a.get('section')})
-    .uniq()
-    .value();
-
-    if (playlist.selected().length == playlist.length) {
-      var destination = "/";
-    } else if ( // All items in a section are active
-      sections.length == 1 // Only one section has enabled capsules
-      && playlist.where({inPlaylist: true, section: sections[0]}).length == playlist.where({section: sections[0]}).length // All capsules in the section are enabled
-      ) {
-      this.navigateToSection(sections[0]);
-      return;
-    }
-    else { // custom playlist
-      var destination = _.reduce(playlist.selected(), function (url, obj) {
-        return url + "/" + obj.get('path');
-      }, "");
-    }
-
-    this.navigate(destination, {trigger: false, replace: true});
+    var startingCapsule = playlist.where({"inPlaylist": true}).shift();
+    if (startingCapsule) startingCapsule.play();
   }
 });
 
-$(function () {
 
 // Must load this from the included JSON data
   window.playlist = new Playlist(playlistData);
