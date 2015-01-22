@@ -8,7 +8,7 @@ var Capsule = Backbone.Model.extend({
       "duration" : 0,
       "buffer" : 0,
       "seek" : 0,
-      "inPlaylist" : true
+      "inPlaylist" : false
     };
   },
 
@@ -176,9 +176,10 @@ var PlayerView = Backbone.View.extend({
   initialize: function () {
     this.$el.html(this.template());
     // Listen to the collection for a video player start
-    this.listenTo(playlist, "play", this.openScreen);
+    this.listenTo(this.collection, "play", this.openScreen);
   },
   openScreen: function (activeModel) {
+
     // The playqueue returned nothing active
     if (activeModel == null) return;
     // Clean up lingering mediaelement player
@@ -333,7 +334,7 @@ var PlaylistSelectorView = Backbone.View.extend({
     // iterate over the collection and add all active models as subviews
     this.fillPlaylist();
     // listen to a change in the collection to rebuild the list
-    this.listenTo(this.collection, "toggleSection", this.resetPlaylist);
+    this.listenTo(this.collection, "change:inPlaylist", this.resetPlaylist);
   },
   remove : function () {
     _(this.playlistViews).each(function (view) {view.remove()});
@@ -548,9 +549,9 @@ var AppView = Backbone.View.extend({
     // object or a specific app object
     this.playlist = window.playlist;
     // Create a player interface
-    this.player = new PlayerView({collection: this.playlist});
+    this.player = new PlayerView({collection: this.collection});
     // Create a playlist interface
-    this.playlistView = new PlaylistView({collection: this.playlist});
+    this.playlistView = new PlaylistView({collection: this.collection});
 
     this.listenTo(this.collection, "play", this.scrollToThePlayer);
   },
@@ -584,20 +585,10 @@ var AppView = Backbone.View.extend({
 
 var PlaylistRouter = Backbone.Router.extend({
   routes: {
-    "lecteur/:liste" : "startPlaylist"
+    "lecteur(/)(:liste)" : "startPlaylist"
   },
   initialize: function () {
-    //Make some nice routes out of playlist sections
-    var rawSections = _(playlist.pluck("section")).uniq();
-    this.sections = _(rawSections).chain()
-    .map(function (section) {
-      var sectionPath = section.replace(/\s+/g, '-').toLowerCase();
-      return sectionPath;
-    }).value();
-    this.sections = _.object(rawSections, this.sections);
-
-    //Removing this feature
-    //this.listenTo(window.playlist, "toggleSection", this.navigateQueue);
+    this.initializeSectionsHash();
 
     // Bind to Google Analytics
     this.ga = window.ga;
@@ -616,29 +607,49 @@ var PlaylistRouter = Backbone.Router.extend({
       this.ga('set','campaignId', campaignId);
     }
   },
+  //Make some nice routes out of playlist sections
+  initializeSectionsHash : function () {
+    var rawSections = _(playlist.pluck("section")).uniq();
+    this.sectionsHash = _(rawSections).chain()
+    .map(function (section) {
+      var sectionPath = section.replace(/\s+/g, '-').toLowerCase();
+      return sectionPath;
+    }).value();
+    this.sectionsHash = _.object(rawSections, this.sectionsHash);
+  },
   getSanitizedSection: function (section) {
-    return this.sections[section];
+    return this.sectionsHash[section];
   },
   navigateToSection: function (section) {
-    this.navigate(this.sections[section], {trigger: false, replace: true});
+    this.navigate(this.sectionsHash[section], {trigger: false, replace: true});
   },
-  startPlaylist : function (liste) {
+  // Main route for the modal application
+  // Will bring up the application, build a playlist out of capsules selected in
+  // the url, and start the playlist
+  startPlaylist : function (list) {
     this.ga("send","pageview", Backbone.history.root + Backbone.history.getFragment());
 
-    if(liste) {
+    if(list) {
       // If requesting a section, load all its capsules
-      if(_.contains(this.sections, liste)) {
-        playlist.toggleSection(_(this.sections).invert()[liste]);
+      if(_.contains(this.sectionsHash, list)) {
+        playlist.toggleSection(_(this.sectionsHash).invert()[list]);
       } else {
         // Otherwise load individual capsules
-        var notInQueue = _.difference(playlist.pluck("path"), liste.split(/@/));
+        var inQueue = list.split(/@/);
 
-        _.each(notInQueue, function (p) {
-          _(playlist.where({path: p})).each(function(outOfPlaylist) {
-            outOfPlaylist.toggleInPlaylist();
-          });
+        playlist.each(function (capsule) {
+          if(_(inQueue).contains(capsule.get('path'))) {
+            capsule.set({"inPlaylist": true});
+          } else {
+            capsule.set({"inPlaylist": false});
+          }
         });
       }
+    } else {
+      // Load every capsule
+      playlist.each(function (capsule) {
+        capsule.set({'inPlaylist': true});
+      });
     }
     var startingCapsule = playlist.where({"inPlaylist": true}).shift();
     if (startingCapsule) startingCapsule.play();
@@ -648,9 +659,8 @@ var PlaylistRouter = Backbone.Router.extend({
 
 // Must load this from the included JSON data
   window.playlist = new Playlist(playlistData);
+  var appView = new AppView({collection: playlist});
+  $("body").append(appView.render().el);
   window.playlistRouter = new PlaylistRouter();
   Backbone.history.start();
-  var appView = new AppView({collection: window.playlist});
-  $("body").append(appView.render().el);
-  appView.scrollToThePlaylist();
 });
