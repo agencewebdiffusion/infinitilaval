@@ -146,6 +146,9 @@ var VideoView = Backbone.View.extend({
   },
   togglePlay: function () {
     this.player.play();
+  },
+  pause : function () {
+    this.player.pause();
   }
 });
 
@@ -199,6 +202,9 @@ var PlayerView = Backbone.View.extend({
   },
   togglePlay: function () {
     this.screen.togglePlay();
+  },
+  pause : function () {
+    this.screen.pause();
   },
   endCapsule: function () {
     this.nextCapsule();
@@ -570,9 +576,14 @@ var AppView = Backbone.View.extend({
     return this;
   },
   closeTheApp : function () {
-    // destroy the lightbox and return the user to the page if this is a
-    // lightbox app
-    this.remove();
+    // Return the user to the page if this is a lightbox app
+    this.$el.removeClass("overlay");
+    this.player.pause();
+    playlistRouter.navigate();
+  },
+  openTheApp : function () {
+    // Bring the view to the front
+    this.$el.addClass("overlay");
   },
   scrollToThePlayer : function () {
     this.$el.animate({"scrollTop" : 0});
@@ -653,6 +664,8 @@ var PlaylistRouter = Backbone.Router.extend({
     }
     var startingCapsule = playlist.where({"inPlaylist": true}).shift();
     if (startingCapsule) startingCapsule.play();
+
+    appView.openTheApp();
   }
 });
 
