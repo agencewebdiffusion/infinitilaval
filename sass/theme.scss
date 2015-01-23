@@ -16,7 +16,14 @@ body {
   height: 100%;
   width: 100%;
   overflow: scroll;
+  z-index: -1;
+  &.overlay {
+    z-index: 10000;
+  }
 
+  #player-view {
+    background: rgba(255,255,255,.8);
+  }
 
 video {
   width: 100%;
