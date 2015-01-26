@@ -17,8 +17,10 @@ body {
   width: 100%;
   overflow: scroll;
   z-index: -1;
+  display: none;
   &.overlay {
     z-index: 10000;
+    display: block;
   }
 
   #player-view {

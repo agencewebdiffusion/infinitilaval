@@ -604,6 +604,16 @@ var PlaylistRouter = Backbone.Router.extend({
     // Bind to Google Analytics
     this.ga = window.ga;
 
+    // Escape key gets us out of the app
+    this.keyboardListener = $("body").on("keydown", function (e) {
+      switch (e.which) {
+        // esc
+        case 27 :
+          appView.closeTheApp();
+          break;
+      }
+    });
+
     // Get campaign details from local storage if available
     var campaignSource = localStorage.getItem("awd.campaignSource");
     if(campaignSource !== null) {
