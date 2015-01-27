@@ -579,7 +579,6 @@ var AppView = Backbone.View.extend({
     // Return the user to the page if this is a lightbox app
     this.$el.removeClass("overlay");
     this.player.pause();
-    playlistRouter.navigate();
   },
   openTheApp : function () {
     // Bring the view to the front

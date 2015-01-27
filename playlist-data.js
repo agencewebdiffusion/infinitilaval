@@ -63,7 +63,7 @@ var playlistData = [
     "path": "Service-executif",
     "section": "Produits financiers",
     "title" : "Le service exécutif",
-    "poster" : "http://agencewebdiffusion.github.io/lexuslaval/images/2_LEXUS_PEA.jpg",
+    "poster" : "http://agencewebdiffusion.github.io/lexuslaval/images/3_SERVICE_executif.jpg",
     "sources" : {
       "video/webm" : "http://d2eetcfu5pmoc1.cloudfront.net/videos/v8/Lexus_3_Le_Service_Executif_v7.webm",
       "video/mp4" : "http://d2eetcfu5pmoc1.cloudfront.net/videos/v8/Lexus_3_Le_Service_Executif_v7.mp4",
@@ -75,7 +75,7 @@ var playlistData = [
     "path": "Esthetique",
     "section": "Produits financiers",
     "title" : "L'esthétique",
-    "poster" : "http://agencewebdiffusion.github.io/lexuslaval/images/2_LEXUS_PEA.jpg",
+    "poster" : "http://agencewebdiffusion.github.io/lexuslaval/images/4_LEXUS_esthetique.jpg",
     "sources" : {
       "video/webm" : "http://d2eetcfu5pmoc1.cloudfront.net/videos/v8/Lexus_4_Esthetique_Lexus_v7.webm",
       "video/mp4" : "http://d2eetcfu5pmoc1.cloudfront.net/videos/v8/Lexus_4_Esthetique_Lexus_v7.mp4",
@@ -87,7 +87,7 @@ var playlistData = [
     "path": "Assurance-de-remplacement",
     "section": "Produits financiers",
     "title" : "Assurance de remplacement",
-    "poster" : "http://agencewebdiffusion.github.io/lexuslaval/images/2_LEXUS_PEA.jpg",
+    "poster" : "http://agencewebdiffusion.github.io/lexuslaval/images/5_AssuranceRemplacement.jpg",
     "sources" : {
       "video/webm" : "http://d2eetcfu5pmoc1.cloudfront.net/videos/v8/Lexus_5_Assurance_de_remplacement_v7.webm",
       "video/mp4" : "http://d2eetcfu5pmoc1.cloudfront.net/videos/v8/Lexus_5_Assurance_de_remplacement_v7.mp4",
@@ -99,7 +99,7 @@ var playlistData = [
     "path": "TAG",
     "section": "Produits financiers",
     "title" : "Système de repérage TAG",
-    "poster" : "http://agencewebdiffusion.github.io/lexuslaval/images/2_LEXUS_PEA.jpg",
+    "poster" : "http://agencewebdiffusion.github.io/lexuslaval/images/6_LEXUS_TAG.jpg",
     "sources" : {
       "video/webm" : "http://d2eetcfu5pmoc1.cloudfront.net/videos/v8/Lexus_6_TAG_v7.webm",
       "video/mp4" : "http://d2eetcfu5pmoc1.cloudfront.net/videos/v8/Lexus_6_TAG_v7.mp4",
@@ -111,7 +111,7 @@ var playlistData = [
     "path": "Cueillette",
     "section": "Expérience après achat",
     "title" : "La prise de possession",
-    "poster" : "http://agencewebdiffusion.github.io/lexuslaval/images/2_LEXUS_PEA.jpg",
+    "poster" : "http://agencewebdiffusion.github.io/lexuslaval/images/7_LEXUS_cueillette-prise_de_possession.jpg",
     "sources" : {
       "video/webm" : "http://d2eetcfu5pmoc1.cloudfront.net/videos/v8/Lexus_7_Cueillette_v7.webm",
       "video/mp4" : "http://d2eetcfu5pmoc1.cloudfront.net/videos/v8/Lexus_7_Cueillette_v7.mp4",
@@ -123,7 +123,7 @@ var playlistData = [
     "path": "Personnalisation",
     "section": "Expérience après achat",
     "title" : "Personnalisation de votre véhicule",
-    "poster" : "http://agencewebdiffusion.github.io/lexuslaval/images/2_LEXUS_PEA.jpg",
+    "poster" : "http://agencewebdiffusion.github.io/lexuslaval/images/8-Personnalisation_et_suivi.jpg",
     "sources" : {
       "video/webm" : "http://d2eetcfu5pmoc1.cloudfront.net/videos/v8/Lexus_8_Retour_a_la_maison_v7.webm",
       "video/mp4" : "http://d2eetcfu5pmoc1.cloudfront.net/videos/v8/Lexus_8_Retour_a_la_maison_v7.mp4",
@@ -135,7 +135,7 @@ var playlistData = [
     "path": "Changement-de-pneus",
     "section": "Service",
     "title" : "Changement de pneus",
-    "poster" : "http://agencewebdiffusion.github.io/lexuslaval/images/2_LEXUS_PEA.jpg",
+    "poster" : "http://agencewebdiffusion.github.io/lexuslaval/images/9_changementPNEU.jpg",
     "sources" : {
       "video/webm" : "http://d2eetcfu5pmoc1.cloudfront.net/videos/v8/Lexus_9_Changement_de_Pneu_v7.webm",
       "video/mp4" : "http://d2eetcfu5pmoc1.cloudfront.net/videos/v8/Lexus_9_Changement_de_Pneu_v7.mp4",
