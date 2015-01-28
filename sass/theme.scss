@@ -18,6 +18,9 @@ body {
   overflow: hidden;
   z-index: -1;
   display: none;
+
+  & *:focus { outline:none; } /* Removes annoying blue outlines when interacting */
+
   &.overlay {
     z-index: 10000;
     display: block;
