@@ -68,21 +68,17 @@ var Playlist = Backbone.Collection.extend({
       }, "");
     }
   },
-  // Find the next neighbor in the global playlist
-  // Build a list of capsules after and before the active capsule
-  rotate: function (capsule) {
-    var idx = this.indexOf(capsule);
-    return _.union(this.rest(idx + 1), this.first(idx));
-  },
   next: function(capsule) {
-    return _(this.rotate(capsule)).find(function (neighbor) {
-      return neighbor.get('inPlaylist');
-    });
+    return _(this.rest(this.indexOf(capsule) + 1))
+      .find(function (neighbor) {
+        return neighbor.get('inPlaylist');
+      });
   },
   previous: function(capsule) {
-    return _(this.rotate(capsule).reverse()).find(function (neighbor) {
-      return neighbor.get('inPlaylist');
-    });
+    return _(this.first(this.indexOf(capsule)).reverse())
+      .find(function (neighbor) {
+        return neighbor.get('inPlaylist');
+      });
   }
 });
 
@@ -90,7 +86,7 @@ var Playlist = Backbone.Collection.extend({
 var VideoView = Backbone.View.extend({
   id: "video-wrapper",
   template: _.template('\
-  <video id="media-element" poster="<%= poster %>" controls style="height: 100%; width: 100%"> \
+  <video id="media-element" poster="<%= poster %>" controls preload=none style="height: 100%; width: 100%"> \
     <% _.each(sources, function (source, type) { %> \
       <source type="<%= type %>" src="<%= source %>"/> \
     <% }); %> \
@@ -195,11 +191,27 @@ var PlayerView = Backbone.View.extend({
     this.screen = new VideoView({model: activeModel});
     this.$('#screen').prepend(this.screen.$el);
     this.screen.render();
+    this.renderControls();
     $("#timeline-title").html(activeModel.get('title'));
 
     // Should these events route through the model instead of the subview?
     this.listenTo(this.screen, "vimont:ended", this.endCapsule);
     this.listenTo(this.screen, "vimont:playing", this.resumed);
+
+    return this.screen;
+  },
+  renderControls: function () {
+    if(playlist.next(this.screen.model)) {
+      this.$("#controls-next").show();
+    } else {
+      this.$("#controls-next").hide();
+    }
+
+    if(playlist.previous(this.screen.model)) {
+      this.$("#controls-back").show();
+    } else {
+      this.$("#controls-back").hide();
+    }
   },
   togglePlay: function () {
     this.screen.togglePlay();
@@ -208,7 +220,7 @@ var PlayerView = Backbone.View.extend({
     this.screen.pause();
   },
   endCapsule: function () {
-    this.nextCapsule();
+    if(this.nextCapsule() == null) return;
 
     // Set a timer to start the video
     var size = 0;
@@ -231,11 +243,11 @@ var PlayerView = Backbone.View.extend({
   },
   nextCapsule: function () {
     // Move active screen in collection, or wrap to start
-    this.openScreen(playlist.next(this.screen.model));
+    return this.openScreen(playlist.next(this.screen.model));
   },
   previousCapsule: function () {
     // Move active screen in collection, or wrap to end
-    this.openScreen(playlist.previous(this.screen.model));
+    return this.openScreen(playlist.previous(this.screen.model));
   }
 });
 
