@@ -31,6 +31,7 @@ video {
   max-width: 100%;
   height: auto;
   max-height: auto;
+  background: none;
 }
 
 img {
@@ -106,7 +107,7 @@ a:link, a:hover, a:active, a:visited {
   }
 }
 
-@media screen and (min-width: 900px) {
+@media screen and (min-width: 800px) {
   .grid-item {
     width: 33.3333%;
   }
@@ -120,7 +121,7 @@ a:link, a:hover, a:active, a:visited {
   }
 }
 
-@media screen and (min-width: 1400px) {
+@media screen and (min-width: 1000px) {
   .grid-item {
     width: 25%;
   }
@@ -154,16 +155,14 @@ a:link, a:hover, a:active, a:visited {
 #scroll-view {
   background: black;
   background-color: rgba(0,0,0,.9);
-  box-shadow: 0 0 10px silver;
   position: relative;
-  min-height: 80%;
-  padding: 10%;
+  height: 100%;
+  width: 100%;
+  overflow: scroll;
 }
 
-#scroll-view:after {
-  display: table;
-  content: " ";
-  clear: both;
+#list-view {
+  margin: 10%;
 }
 
 #controls-wrapper {

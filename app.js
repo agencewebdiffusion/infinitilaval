@@ -287,7 +287,7 @@ var PlaylistItemView = Backbone.View.extend({
   tagName: "li",
   className: "playlist-view grid-item",
   template: _.template('\
-  <img class="playlist-capsule-thumbnail" src="<%= poster %>"/> \
+  <img class="playlist-capsule-thumbnail" width="960" height="540" src="<%= poster %>"/> \
   <div class="playlist-capsule-wrapper"> \
     <div class="playlist-capsule-title"> <input class="in-playlist-toggle" type="checkbox" <%= inPlaylist ? "checked=checked" : "" %>/> <%= title %></div> \
   </div>'),
@@ -507,8 +507,7 @@ var PlaylistView = Backbone.View.extend({
       <a id="advanced-playlist"><i class="fa fa-share-square-o"></i> Partager <i class="fa fa-close"></i></a> \
       <div id="sections"></div> \
     </div> \
-  </div> \
-  <div id="campaign-view"></div>'),
+  </div>'),
   events: {
     "click #advanced-playlist" : "advancedPlaylist"
   },
