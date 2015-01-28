@@ -110,6 +110,7 @@ var VideoView = Backbone.View.extend({
       iPhoneUseNativeControls: true,
       hideVideoControlsOnLoad: true,
       enablePluginSmoothing: true,
+      enablePseudoStreaming: true,
       features: ['playpause', 'progress' ,'volume'],
       success: function (player, node) {
         self.player = player;
