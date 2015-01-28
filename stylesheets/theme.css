@@ -1,16 +1,4 @@
-/* line 2, ../sass/theme.scss */
-body {
-  background: white;
-  color: gray;
-  font-family: sans-serif;
-  font-size: 20px;
-  line-height: 1em;
-  margin: 0;
-  padding: 0;
-  position: relative;
-}
-
-/* line 13, ../sass/theme.scss */
+/* line 1, ../sass/theme.scss */
 #awd-video-appbox {
   position: fixed;
   top: 0;
@@ -24,27 +12,27 @@ body {
   display: none;
   /* Removes annoying blue outlines when interacting */
 }
-/* line 22, ../sass/theme.scss */
+/* line 10, ../sass/theme.scss */
 #awd-video-appbox *:focus {
   outline: none;
 }
-/* line 24, ../sass/theme.scss */
+/* line 12, ../sass/theme.scss */
 #awd-video-appbox.overlay {
   z-index: 10000;
   display: block;
 }
-/* line 29, ../sass/theme.scss */
+/* line 17, ../sass/theme.scss */
 #awd-video-appbox #player-view {
   background: rgba(255, 255, 255, 0.9);
 }
-/* line 33, ../sass/theme.scss */
+/* line 21, ../sass/theme.scss */
 #awd-video-appbox video {
   width: 100%;
   height: 100%;
   display: block;
   position: absolute;
 }
-/* line 42, ../sass/theme.scss */
+/* line 30, ../sass/theme.scss */
 #awd-video-appbox .mejs-container,
 #awd-video-appbox .mejs-video video,
 #awd-video-appbox .mejs-layer {
@@ -52,35 +40,36 @@ body {
   height: auto;
   max-height: auto;
 }
-/* line 48, ../sass/theme.scss */
+/* line 36, ../sass/theme.scss */
 #awd-video-appbox img {
   display: block;
   max-width: 100%;
   height: auto;
 }
-/* line 53, ../sass/theme.scss */
+/* line 41, ../sass/theme.scss */
 #awd-video-appbox ul {
   padding: 0;
   margin: 0;
 }
-/* line 58, ../sass/theme.scss */
+/* line 46, ../sass/theme.scss */
 #awd-video-appbox a:link, #awd-video-appbox a:hover, #awd-video-appbox a:active, #awd-video-appbox a:visited {
   color: #666;
   text-decoration: none;
 }
-/* line 63, ../sass/theme.scss */
+/* line 51, ../sass/theme.scss */
 #awd-video-appbox .column {
   max-width: 80%;
   margin: auto;
 }
 @media screen and (min-width: 1200px) {
-  /* line 68, ../sass/theme.scss */
+  /* line 56, ../sass/theme.scss */
   #awd-video-appbox .column {
     max-width: 1000px;
   }
 }
-/* line 71, ../sass/theme.scss */
-#awd-video-appbox .app-container {
+/* line 60, ../sass/theme.scss */
+#awd-video-appbox .app-container,
+#awd-video-appbox #player-view {
   overflow: auto;
   margin: auto;
   position: relative;
@@ -91,12 +80,12 @@ body {
   height: 100%;
   width: 100%;
 }
-/* line 83, ../sass/theme.scss */
+/* line 72, ../sass/theme.scss */
 #awd-video-appbox .fullscreen-placeholder {
   width: 0%;
   height: 100%;
 }
-/* line 88, ../sass/theme.scss */
+/* line 77, ../sass/theme.scss */
 #awd-video-appbox .app-modal {
   overflow: auto;
   margin: auto;
@@ -106,57 +95,57 @@ body {
   bottom: 0;
   right: 0;
 }
-/* line 98, ../sass/theme.scss */
+/* line 87, ../sass/theme.scss */
 #awd-video-appbox .grid-container {
   margin-left: 0%;
   margin-right: 0%;
 }
-/* line 103, ../sass/theme.scss */
+/* line 92, ../sass/theme.scss */
 #awd-video-appbox .grid-item {
   width: 50%;
   margin-left: 0%;
   margin-right: 0%;
   float: left;
 }
-/* line 110, ../sass/theme.scss */
+/* line 99, ../sass/theme.scss */
 #awd-video-appbox .grid-item:nth-child(2n+1) {
   clear: both;
 }
 @media screen and (max-width: 600px) {
-  /* line 115, ../sass/theme.scss */
+  /* line 104, ../sass/theme.scss */
   #awd-video-appbox .grid-item {
     width: 100%;
   }
 }
 @media screen and (min-width: 900px) {
-  /* line 121, ../sass/theme.scss */
+  /* line 110, ../sass/theme.scss */
   #awd-video-appbox .grid-item {
     width: 33.3333%;
   }
-  /* line 125, ../sass/theme.scss */
+  /* line 114, ../sass/theme.scss */
   #awd-video-appbox .grid-item:nth-child(2n+1) {
     clear: none;
   }
-  /* line 129, ../sass/theme.scss */
+  /* line 118, ../sass/theme.scss */
   #awd-video-appbox .grid-item:nth-child(3n+1) {
     clear: both;
   }
 }
 @media screen and (min-width: 1400px) {
-  /* line 135, ../sass/theme.scss */
+  /* line 124, ../sass/theme.scss */
   #awd-video-appbox .grid-item {
     width: 25%;
   }
-  /* line 138, ../sass/theme.scss */
+  /* line 127, ../sass/theme.scss */
   #awd-video-appbox .grid-item:nth-child(3n+1) {
     clear: none;
   }
-  /* line 141, ../sass/theme.scss */
+  /* line 130, ../sass/theme.scss */
   #awd-video-appbox .grid-item:nth-child(4n+1) {
     clear: both;
   }
 }
-/* line 147, ../sass/theme.scss */
+/* line 136, ../sass/theme.scss */
 #awd-video-appbox #menu-icons {
   position: fixed;
   top: 0;
@@ -164,17 +153,17 @@ body {
   z-index: 1000;
   text-align: center;
 }
-/* line 155, ../sass/theme.scss */
+/* line 144, ../sass/theme.scss */
 #awd-video-appbox #close-the-app {
   display: block;
   padding: .85em 1em;
 }
-/* line 160, ../sass/theme.scss */
+/* line 149, ../sass/theme.scss */
 #awd-video-appbox #list-shortcut i {
   display: block;
   padding: .85em 1em;
 }
-/* line 165, ../sass/theme.scss */
+/* line 154, ../sass/theme.scss */
 #awd-video-appbox #scroll-view {
   background: black;
   background-color: rgba(0, 0, 0, 0.9);
@@ -183,23 +172,35 @@ body {
   min-height: 80%;
   padding: 10%;
 }
-/* line 174, ../sass/theme.scss */
+/* line 163, ../sass/theme.scss */
 #awd-video-appbox #scroll-view:after {
   display: table;
   content: " ";
   clear: both;
 }
-/* line 180, ../sass/theme.scss */
+/* line 169, ../sass/theme.scss */
+#awd-video-appbox #controls-wrapper {
+  width: 80%;
+  margin: auto;
+  display: table;
+  height: 100%;
+}
+/* line 174, ../sass/theme.scss */
+#awd-video-appbox #controls-wrapper .vertical-center {
+  display: table-cell;
+  text-align: center;
+  vertical-align: middle;
+}
+/* line 181, ../sass/theme.scss */
 #awd-video-appbox #screen {
-  position: absolute;
+  position: relative;
   top: 0;
   left: 0;
   right: 0;
   height: 0;
   padding-top: 56.25%;
-  padding-bottom: 2.5em;
-  max-height: 80%;
   margin: auto;
+  overflow: hidden;
 }
 /* line 191, ../sass/theme.scss */
 #awd-video-appbox #video-wrapper {
@@ -253,11 +254,10 @@ body {
 /* line 239, ../sass/theme.scss */
 #awd-video-appbox #timeline {
   width: 100%;
-  text-align: center;
-  position: absolute;
   padding: .5em 0;
+  text-align: left;
 }
-/* line 245, ../sass/theme.scss */
+/* line 244, ../sass/theme.scss */
 #awd-video-appbox #timeline-duration {
   position: absolute;
   left: 0;
@@ -268,20 +268,20 @@ body {
   z-index: -1;
   display: none;
 }
-/* line 255, ../sass/theme.scss */
+/* line 254, ../sass/theme.scss */
 #awd-video-appbox .playlist-view {
   display: block;
   position: relative;
 }
-/* line 260, ../sass/theme.scss */
+/* line 259, ../sass/theme.scss */
 #awd-video-appbox .playlist-view:hover {
   cursor: default;
 }
-/* line 264, ../sass/theme.scss */
+/* line 263, ../sass/theme.scss */
 #awd-video-appbox .playlist-view:hover .playlist-capsule-wrapper {
   background: transparent;
 }
-/* line 268, ../sass/theme.scss */
+/* line 267, ../sass/theme.scss */
 #awd-video-appbox .playlist-capsule-wrapper {
   position: absolute;
   top: 0;
@@ -293,18 +293,18 @@ body {
   text-shadow: 0px 1px 5px black;
   background: rgba(0, 0, 0, 0.5);
 }
-/* line 281, ../sass/theme.scss */
+/* line 280, ../sass/theme.scss */
 #awd-video-appbox .out-of-playlist .playlist-capsule-wrapper {
   background: rgba(125, 125, 125, 0.75);
 }
-/* line 286, ../sass/theme.scss */
+/* line 285, ../sass/theme.scss */
 #awd-video-appbox .vertical-center,
 #awd-video-appbox .playlist-capsule-title {
   display: inline-block;
   vertical-align: middle;
   max-width: 95%;
 }
-/* line 293, ../sass/theme.scss */
+/* line 292, ../sass/theme.scss */
 #awd-video-appbox .vertical-center-container:after,
 #awd-video-appbox .playlist-capsule-wrapper:after {
   content: "";
@@ -312,44 +312,44 @@ body {
   vertical-align: middle;
   height: 100%;
 }
-/* line 300, ../sass/theme.scss */
+/* line 299, ../sass/theme.scss */
 #awd-video-appbox input.in-playlist-toggle {
   vertical-align: top;
 }
-/* line 304, ../sass/theme.scss */
+/* line 303, ../sass/theme.scss */
 #awd-video-appbox #toggles {
   clear: both;
 }
-/* line 308, ../sass/theme.scss */
+/* line 307, ../sass/theme.scss */
 #awd-video-appbox #toggles input {
   margin: .3em;
 }
-/* line 312, ../sass/theme.scss */
+/* line 311, ../sass/theme.scss */
 #awd-video-appbox #toggles label {
   margin-left: .3em;
   font-size: .7em;
 }
-/* line 317, ../sass/theme.scss */
+/* line 316, ../sass/theme.scss */
 #awd-video-appbox .sharing #sections {
   border-top: 1px solid white;
 }
-/* line 321, ../sass/theme.scss */
+/* line 320, ../sass/theme.scss */
 #awd-video-appbox #advanced-playlist {
   float: right;
 }
-/* line 325, ../sass/theme.scss */
+/* line 324, ../sass/theme.scss */
 #awd-video-appbox #advanced-playlist .fa-close {
   display: none;
 }
-/* line 328, ../sass/theme.scss */
+/* line 327, ../sass/theme.scss */
 #awd-video-appbox .sharing #advanced-playlist .fa-close {
   display: inline;
 }
-/* line 331, ../sass/theme.scss */
+/* line 330, ../sass/theme.scss */
 #awd-video-appbox .sharing #advanced-playlist .fa-share-square-o {
   display: none;
 }
-/* line 335, ../sass/theme.scss */
+/* line 334, ../sass/theme.scss */
 #awd-video-appbox #toggles a {
   display: inline-block;
   border-radius: .35em;
@@ -359,11 +359,11 @@ body {
   margin: .3em;
   cursor: pointer;
 }
-/* line 345, ../sass/theme.scss */
+/* line 344, ../sass/theme.scss */
 #awd-video-appbox .playlist-selector .in-playlist-toggle {
   display: none;
 }
-/* line 349, ../sass/theme.scss */
+/* line 348, ../sass/theme.scss */
 #awd-video-appbox #toggles #playlist-url {
   width: 90%;
   background: transparent;

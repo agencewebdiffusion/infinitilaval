@@ -154,18 +154,19 @@ var VideoView = Backbone.View.extend({
  */
 var PlayerView = Backbone.View.extend({
   id: "player-view",
-  className: "app-container",
   template: _.template('<div id="controls"> \
     <a id="controls-back"><i class="fa fa-chevron-left"></i></a> \
     <a id="controls-next"><i class="fa fa-chevron-right"></i></a> \
   </div> \
-  <div id="controls-wrapper" class="app-container column"> \
-    <div id="screen" class="app-modal"> \
-      <div id="timeline"> \
-        <div id="timeline-buffer"></div> \
-        <div id="timeline-duration"></div> \
-        <div id="timeline-title"></div> \
-      </div> \
+  <div id="controls-wrapper"> \
+    <div class="vertical-center"> \
+    <div id="timeline"> \
+      <div id="timeline-buffer"></div> \
+      <div id="timeline-duration"></div> \
+      <div id="timeline-title"></div> \
+    </div> \
+    <div id="screen"> \
+    </div> \
     </div> \
   </div>'),
   events: {
