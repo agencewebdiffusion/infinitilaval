@@ -477,7 +477,7 @@ var PlaylistControlsView = Backbone.View.extend({
     // Get the document location
     // Reset the url in the input box
     this.$("#playlist-url")
-      .val(encodeURI(document.location.origin + document.location.pathname + queryString + '#lecteur/' + fragment ));
+      .val(document.location.origin + document.location.pathname + encodeURI(queryString) + '#lecteur/' + fragment );
   }
 });
 
