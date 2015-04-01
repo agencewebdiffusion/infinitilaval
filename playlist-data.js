@@ -63,7 +63,7 @@ var playlistData = [
     "path": "Système-de-repérage",
     "section": "Produits financiers",
     "title" : "Système de repérage",
-    "poster" : "http://agencewebdiffusion.github.io/infinitilaval/images/6_systeme de repérage.jpg",
+    "poster" : "http://agencewebdiffusion.github.io/infinitilaval/images/6_systeme de reperage.jpg",
     "sources" : {
       "video/webm" : "http://d3fa3ms7js8ulf.cloudfront.net/videos/WEBv01/Infiniti_6_Systeme_de_reperage_v4.webm",
       "video/mp4" : "http://d3fa3ms7js8ulf.cloudfront.net/videos/WEBv01/Infiniti_6_Systeme_de_reperage_v4.mp4",
@@ -87,7 +87,7 @@ var playlistData = [
     "path": "Retour-à-la-maison",
     "section": "Livraison",
     "title" : "Retour à la maison",
-    "poster" : "http://agencewebdiffusion.github.io/infinitilaval/images/8-retour à la maison .jpg",
+    "poster" : "http://agencewebdiffusion.github.io/infinitilaval/images/8-retour a la maison.jpg",
     "sources" : {
       "video/webm" : "http://d3fa3ms7js8ulf.cloudfront.net/videos/WEBv01/Infiniti_8_Retour_a_la_maison_v4.webm",
       "video/mp4" : "http://d3fa3ms7js8ulf.cloudfront.net/videos/WEBv01/Infiniti_8_Retour_a_la_maison_v4.mp4",
@@ -99,7 +99,7 @@ var playlistData = [
     "path": "Programme-eLITE",
     "section": "Livraison",
     "title" : "Programme d'entretien prépayé élite",
-    "poster" : "http://agencewebdiffusion.github.io/infinitilaval/images/9_programme d'entretin prépayé.jpg",
+    "poster" : "http://agencewebdiffusion.github.io/infinitilaval/images/9_programme d'entretien prepaye.jpg",
     "sources" : {
       "video/webm" : "http://d3fa3ms7js8ulf.cloudfront.net/videos/WEBv01/Infiniti_9_Programme_dentretien_prepaye_de_la_gamme_eLITE_v4.webm",
       "video/mp4" : "http://d3fa3ms7js8ulf.cloudfront.net/videos/WEBv01/Infiniti_9_Programme_dentretien_prepaye_de_la_gamme_eLITE_v4.mp4",
@@ -123,7 +123,7 @@ var playlistData = [
     "path": "Véhicule-d-occasion-certifié",
     "section": "Occasion",
     "title" : "Véhicule d'occasion certifié Infiniti",
-    "poster" : "http://agencewebdiffusion.github.io/infinitilaval/images/11_b-vehicule certifié.jpg",
+    "poster" : "http://agencewebdiffusion.github.io/infinitilaval/images/11_b-vehicule certifie.jpg",
     "sources" : {
       "video/webm" : "http://d3fa3ms7js8ulf.cloudfront.net/videos/WEBv01/Infiniti_11_Vehicule_d_occasion_certifie_v4_grfx.webm",
       "video/mp4" : "http://d3fa3ms7js8ulf.cloudfront.net/videos/WEBv01/Infiniti_11_Vehicule_d_occasion_certifie_v4_grfx.mp4",
