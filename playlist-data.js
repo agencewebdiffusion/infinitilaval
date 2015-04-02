@@ -2,7 +2,7 @@ var playlistData = [
   {
     "path": "Intro",
     "section": "Produits financiers",
-    "title" : "Introduction des produits financiers",
+    "title" : "L'acquisition",
     "poster" : "http://agencewebdiffusion.github.io/infinitilaval/images/1_Intro-capsule.jpg",
     "sources" : {
       "video/webm" : "http://d3fa3ms7js8ulf.cloudfront.net/videos/WEBv01/Infiniti_1_INTRODUCTION_DES_CAPSULES_v4.webm",
@@ -72,9 +72,9 @@ var playlistData = [
   }
   ,
   {
-    "path": "Cueillette",
+    "path": "La-prise-de-possession",
     "section": "Livraison",
-    "title" : "Cueillette du véhicule",
+    "title" : "La prise de possession",
     "poster" : "http://agencewebdiffusion.github.io/infinitilaval/images/7_acquisition du vehicule.jpg",
     "sources" : {
       "video/webm" : "http://d3fa3ms7js8ulf.cloudfront.net/videos/WEBv01/Infiniti_7_Cueillette_v4.webm",
@@ -86,7 +86,7 @@ var playlistData = [
   {
     "path": "Retour-à-la-maison",
     "section": "Livraison",
-    "title" : "Retour à la maison",
+    "title" : "La connexion, l'Assistant personnel et satisfaction",
     "poster" : "http://agencewebdiffusion.github.io/infinitilaval/images/8-retour a la maison.jpg",
     "sources" : {
       "video/webm" : "http://d3fa3ms7js8ulf.cloudfront.net/videos/WEBv01/Infiniti_8_Retour_a_la_maison_v4.webm",
@@ -97,7 +97,7 @@ var playlistData = [
   ,
   {
     "path": "Programme-eLITE",
-    "section": "Livraison",
+    "section": "Produits financiers",
     "title" : "Programme d'entretien prépayé élite",
     "poster" : "http://agencewebdiffusion.github.io/infinitilaval/images/9_programme d'entretien prepaye.jpg",
     "sources" : {
@@ -109,7 +109,7 @@ var playlistData = [
   ,
   {
     "path": "Changement-de-pneus",
-    "section": "Livraison",
+    "section": "Service",
     "title" : "Changement de pneus",
     "poster" : "http://agencewebdiffusion.github.io/infinitilaval/images/10-Pneu.jpg",
     "sources" : {
@@ -121,7 +121,7 @@ var playlistData = [
   ,
   {
     "path": "Véhicule-d-occasion-certifié",
-    "section": "Occasion",
+    "section": "Produits financiers",
     "title" : "Véhicule d'occasion certifié Infiniti",
     "poster" : "http://agencewebdiffusion.github.io/infinitilaval/images/11_b-vehicule certifie.jpg",
     "sources" : {
