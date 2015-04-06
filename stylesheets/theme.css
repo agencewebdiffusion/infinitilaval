@@ -68,9 +68,8 @@
     max-width: 1000px;
   }
 }
-/* line 61, ../sass/theme.scss */
-#awd-video-appbox .app-container,
-#awd-video-appbox #player-view {
+/* line 60, ../sass/theme.scss */
+#awd-video-appbox .app-container {
   overflow: auto;
   margin: auto;
   position: relative;
@@ -82,11 +81,23 @@
   width: 100%;
 }
 /* line 73, ../sass/theme.scss */
+#awd-video-appbox #player-view {
+  overflow: auto;
+  margin: auto;
+  position: relative;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  right: 0;
+  height: 75%;
+  width: 100%;
+}
+/* line 85, ../sass/theme.scss */
 #awd-video-appbox .fullscreen-placeholder {
   width: 0%;
   height: 100%;
 }
-/* line 78, ../sass/theme.scss */
+/* line 90, ../sass/theme.scss */
 #awd-video-appbox .app-modal {
   overflow: auto;
   margin: auto;
@@ -96,57 +107,57 @@
   bottom: 0;
   right: 0;
 }
-/* line 88, ../sass/theme.scss */
+/* line 100, ../sass/theme.scss */
 #awd-video-appbox .grid-container {
   margin-left: 0%;
   margin-right: 0%;
 }
-/* line 93, ../sass/theme.scss */
+/* line 105, ../sass/theme.scss */
 #awd-video-appbox .grid-item {
   width: 50%;
   margin-left: 0%;
   margin-right: 0%;
   float: left;
 }
-/* line 100, ../sass/theme.scss */
+/* line 112, ../sass/theme.scss */
 #awd-video-appbox .grid-item:nth-child(2n+1) {
   clear: both;
 }
-@media screen and (max-width: 600px) {
-  /* line 105, ../sass/theme.scss */
+@media screen and (max-width: 400px) {
+  /* line 117, ../sass/theme.scss */
   #awd-video-appbox .grid-item {
     width: 100%;
   }
 }
-@media screen and (min-width: 800px) {
-  /* line 111, ../sass/theme.scss */
+@media screen and (min-width: 900px) {
+  /* line 123, ../sass/theme.scss */
   #awd-video-appbox .grid-item {
     width: 33.3333%;
   }
-  /* line 115, ../sass/theme.scss */
+  /* line 127, ../sass/theme.scss */
   #awd-video-appbox .grid-item:nth-child(2n+1) {
     clear: none;
   }
-  /* line 119, ../sass/theme.scss */
+  /* line 131, ../sass/theme.scss */
   #awd-video-appbox .grid-item:nth-child(3n+1) {
     clear: both;
   }
 }
-@media screen and (min-width: 1000px) {
-  /* line 125, ../sass/theme.scss */
+@media screen and (min-width: 1200px) {
+  /* line 137, ../sass/theme.scss */
   #awd-video-appbox .grid-item {
     width: 25%;
   }
-  /* line 128, ../sass/theme.scss */
+  /* line 140, ../sass/theme.scss */
   #awd-video-appbox .grid-item:nth-child(3n+1) {
     clear: none;
   }
-  /* line 131, ../sass/theme.scss */
+  /* line 143, ../sass/theme.scss */
   #awd-video-appbox .grid-item:nth-child(4n+1) {
     clear: both;
   }
 }
-/* line 137, ../sass/theme.scss */
+/* line 149, ../sass/theme.scss */
 #awd-video-appbox #menu-icons {
   position: fixed;
   top: 0;
@@ -154,54 +165,65 @@
   z-index: 1000;
   text-align: center;
 }
-/* line 145, ../sass/theme.scss */
+/* line 157, ../sass/theme.scss */
 #awd-video-appbox #close-the-app {
   display: block;
   padding: .85em 1em;
 }
-/* line 150, ../sass/theme.scss */
+/* line 162, ../sass/theme.scss */
 #awd-video-appbox #list-shortcut i {
   display: block;
   padding: .85em 1em;
 }
-/* line 155, ../sass/theme.scss */
+/* line 167, ../sass/theme.scss */
 #awd-video-appbox #scroll-view {
   background: black;
   background-color: rgba(0, 0, 0, 0.9);
   position: relative;
-  height: 100%;
+  height: 25%;
   width: 100%;
   overflow: scroll;
 }
-/* line 164, ../sass/theme.scss */
-#awd-video-appbox #list-view {
-  margin: 10%;
+/* line 174, ../sass/theme.scss */
+#awd-video-appbox #scroll-view.full-height {
+  height: 100%;
 }
-/* line 168, ../sass/theme.scss */
+/* line 179, ../sass/theme.scss */
+#awd-video-appbox #list-view {
+  margin: 0%;
+}
+/* line 183, ../sass/theme.scss */
 #awd-video-appbox #controls-wrapper {
-  width: 80%;
+  width: 60%;
   margin: auto;
   display: table;
   height: 100%;
 }
-/* line 173, ../sass/theme.scss */
+/* line 188, ../sass/theme.scss */
 #awd-video-appbox #controls-wrapper .vertical-center {
   display: table-cell;
   text-align: center;
   vertical-align: middle;
 }
-/* line 180, ../sass/theme.scss */
+@media screen and (max-width: 900px) {
+  /* line 183, ../sass/theme.scss */
+  #awd-video-appbox #controls-wrapper {
+    width: 80%;
+  }
+}
+/* line 199, ../sass/theme.scss */
 #awd-video-appbox #screen {
   position: relative;
   top: 0;
   left: 0;
   right: 0;
+  bottom: 0;
   height: 0;
   padding-top: 56.25%;
   margin: auto;
   overflow: hidden;
 }
-/* line 190, ../sass/theme.scss */
+/* line 210, ../sass/theme.scss */
 #awd-video-appbox #video-wrapper {
   width: 100%;
   height: 100%;
@@ -209,7 +231,7 @@
   position: absolute;
   top: 0;
 }
-/* line 197, ../sass/theme.scss */
+/* line 217, ../sass/theme.scss */
 #awd-video-appbox #controls {
   position: absolute;
   width: 100%;
@@ -219,44 +241,44 @@
   line-height: 35px;
   cursor: pointer;
 }
-/* line 207, ../sass/theme.scss */
+/* line 227, ../sass/theme.scss */
 #awd-video-appbox #controls a {
   display: block;
   position: absolute;
   height: 20em;
   width: 10%;
 }
-/* line 216, ../sass/theme.scss */
+/* line 236, ../sass/theme.scss */
 #awd-video-appbox #controls a .fa {
   position: absolute;
   top: 50%;
   margin-top: -.5em;
 }
-/* line 222, ../sass/theme.scss */
+/* line 242, ../sass/theme.scss */
 #awd-video-appbox #controls a .fa-chevron-left {
   left: 50%;
   margin-left: -.45em;
 }
-/* line 226, ../sass/theme.scss */
+/* line 246, ../sass/theme.scss */
 #awd-video-appbox #controls a .fa-chevron-right {
   right: 50%;
   margin-right: -.45em;
 }
-/* line 231, ../sass/theme.scss */
+/* line 251, ../sass/theme.scss */
 #awd-video-appbox #controls-back {
   left: 0;
 }
-/* line 234, ../sass/theme.scss */
+/* line 254, ../sass/theme.scss */
 #awd-video-appbox #controls-next {
   right: 0;
 }
-/* line 238, ../sass/theme.scss */
+/* line 258, ../sass/theme.scss */
 #awd-video-appbox #timeline {
   width: 100%;
   padding: .5em 0;
   text-align: left;
 }
-/* line 243, ../sass/theme.scss */
+/* line 263, ../sass/theme.scss */
 #awd-video-appbox #timeline-duration {
   position: absolute;
   left: 0;
@@ -267,20 +289,21 @@
   z-index: -1;
   display: none;
 }
-/* line 253, ../sass/theme.scss */
+/* line 273, ../sass/theme.scss */
 #awd-video-appbox .playlist-view {
   display: block;
   position: relative;
 }
-/* line 258, ../sass/theme.scss */
+/* line 278, ../sass/theme.scss */
 #awd-video-appbox .playlist-view:hover {
   cursor: default;
 }
-/* line 262, ../sass/theme.scss */
+/* line 283, ../sass/theme.scss */
+#awd-video-appbox .playing .playlist-capsule-wrapper,
 #awd-video-appbox .playlist-view:hover .playlist-capsule-wrapper {
   background: transparent;
 }
-/* line 266, ../sass/theme.scss */
+/* line 287, ../sass/theme.scss */
 #awd-video-appbox .playlist-capsule-wrapper {
   position: absolute;
   top: 0;
@@ -292,18 +315,18 @@
   text-shadow: 0px 1px 5px black;
   background: rgba(0, 0, 0, 0.5);
 }
-/* line 279, ../sass/theme.scss */
+/* line 300, ../sass/theme.scss */
 #awd-video-appbox .out-of-playlist .playlist-capsule-wrapper {
   background: rgba(125, 125, 125, 0.75);
 }
-/* line 284, ../sass/theme.scss */
+/* line 305, ../sass/theme.scss */
 #awd-video-appbox .vertical-center,
 #awd-video-appbox .playlist-capsule-title {
   display: inline-block;
   vertical-align: middle;
   max-width: 95%;
 }
-/* line 291, ../sass/theme.scss */
+/* line 312, ../sass/theme.scss */
 #awd-video-appbox .vertical-center-container:after,
 #awd-video-appbox .playlist-capsule-wrapper:after {
   content: "";
@@ -311,44 +334,44 @@
   vertical-align: middle;
   height: 100%;
 }
-/* line 298, ../sass/theme.scss */
+/* line 319, ../sass/theme.scss */
 #awd-video-appbox input.in-playlist-toggle {
   vertical-align: top;
 }
-/* line 302, ../sass/theme.scss */
+/* line 323, ../sass/theme.scss */
 #awd-video-appbox #toggles {
   clear: both;
 }
-/* line 306, ../sass/theme.scss */
+/* line 327, ../sass/theme.scss */
 #awd-video-appbox #toggles input {
   margin: .3em;
 }
-/* line 310, ../sass/theme.scss */
+/* line 331, ../sass/theme.scss */
 #awd-video-appbox #toggles label {
   margin-left: .3em;
   font-size: .7em;
 }
-/* line 315, ../sass/theme.scss */
+/* line 336, ../sass/theme.scss */
 #awd-video-appbox .sharing #sections {
   border-top: 1px solid white;
 }
-/* line 319, ../sass/theme.scss */
+/* line 340, ../sass/theme.scss */
 #awd-video-appbox #advanced-playlist {
   float: right;
 }
-/* line 323, ../sass/theme.scss */
+/* line 344, ../sass/theme.scss */
 #awd-video-appbox #advanced-playlist .fa-close {
   display: none;
 }
-/* line 326, ../sass/theme.scss */
+/* line 347, ../sass/theme.scss */
 #awd-video-appbox .sharing #advanced-playlist .fa-close {
   display: inline;
 }
-/* line 329, ../sass/theme.scss */
+/* line 350, ../sass/theme.scss */
 #awd-video-appbox .sharing #advanced-playlist .fa-share-square-o {
   display: none;
 }
-/* line 333, ../sass/theme.scss */
+/* line 354, ../sass/theme.scss */
 #awd-video-appbox #toggles a {
   display: inline-block;
   border-radius: .35em;
@@ -358,11 +381,11 @@
   margin: .3em;
   cursor: pointer;
 }
-/* line 343, ../sass/theme.scss */
+/* line 364, ../sass/theme.scss */
 #awd-video-appbox .playlist-selector .in-playlist-toggle {
   display: none;
 }
-/* line 347, ../sass/theme.scss */
+/* line 368, ../sass/theme.scss */
 #awd-video-appbox #toggles #playlist-url {
   width: 90%;
   background: transparent;

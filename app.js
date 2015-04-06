@@ -244,11 +244,15 @@ var PlayerView = Backbone.View.extend({
   },
   nextCapsule: function () {
     // Move active screen in collection, or wrap to start
-    return this.openScreen(playlist.next(this.screen.model));
+    var next = playlist.next(this.screen.model);
+    if (next != null) next.play();
+    return next;
   },
   previousCapsule: function () {
     // Move active screen in collection, or wrap to end
-    return this.openScreen(playlist.previous(this.screen.model));
+    var prev = playlist.previous(this.screen.model);
+    if (prev != null) prev.play();
+    return prev;
   }
 });
 
@@ -355,6 +359,7 @@ var PlaylistSelectorView = Backbone.View.extend({
     this.fillPlaylist();
     // listen to a change in the collection to rebuild the list
     this.listenTo(this.collection, "change:inPlaylist", this.resetPlaylist);
+    this.listenTo(this.collection, "play", this.scrollActiveCapsule);
   },
   remove : function () {
     _(this.playlistViews).each(function (view) {view.remove()});
@@ -388,6 +393,15 @@ var PlaylistSelectorView = Backbone.View.extend({
   addPlaylistItem : function (capsule) {
     var view = new PlaylistItemView({model: capsule});
     this.playlistViews.push(view);
+  },
+  scrollActiveCapsule : function (capsule) {
+    _(this.playlistViews).each(function (view) {
+      if(view.model == capsule) {
+        view.$el.addClass("playing");
+      } else {
+        view.$el.removeClass("playing");
+      };
+    });
   }
 });
 
@@ -600,11 +614,15 @@ var AppView = Backbone.View.extend({
     this.$el.addClass("overlay");
   },
   scrollToThePlayer : function () {
-    this.$el.animate({"scrollTop" : 0});
+    var myApp = this;
+    this.$el.animate({"scrollTop" : 0}).promise().done(function () {
+      myApp.$("#scroll-view").removeClass('full-height');
+    });
   },
   scrollToThePlaylist : function () {
     // Scrolls the app up and down between the player and playlist views
     this.$el.animate({"scrollTop" : this.player.$el.height()});
+    this.$("#scroll-view").addClass('full-height');
   }
 });
 
