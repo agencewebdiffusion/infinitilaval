@@ -402,6 +402,7 @@ var PlaylistSelectorView = Backbone.View.extend({
         view.$el.removeClass("playing");
       };
     });
+    this.collection.trigger('rescroll');
   }
 });
 
@@ -530,6 +531,8 @@ var PlaylistView = Backbone.View.extend({
     // Create a view to list capsules and edit them
     this.activeView = new PlaylistSelectorView({collection: this.collection});
     this.isBuilding = false;
+
+    this.listenTo(this.collection, 'rescroll', this.rescroll);
   },
   render : function () {
     this.$el.html(this.template());
@@ -559,6 +562,9 @@ var PlaylistView = Backbone.View.extend({
     this.isBuilding = !this.isBuilding;
     this.render();
     this.$el.toggleClass("sharing");
+  },
+  rescroll : function () {
+    this.$el.animate({"scrollTop" : this.$(".playing").position().top + this.$el.scrollTop()});
   }
 });
 
@@ -611,12 +617,13 @@ var AppView = Backbone.View.extend({
   },
   openTheApp : function () {
     // Bring the view to the front
-    this.$el.addClass("overlay");
+    this.$el.addClass("overlay").animate().addClass('opaque');
   },
   scrollToThePlayer : function () {
     var myApp = this;
     this.$el.animate({"scrollTop" : 0}).promise().done(function () {
       myApp.$("#scroll-view").removeClass('full-height');
+      myApp.collection.trigger('rescroll');
     });
   },
   scrollToThePlaylist : function () {
